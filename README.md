@@ -1,63 +1,110 @@
-# OpenCode Todo List Plugin (`opencode.tools.todolist`)
+# OpenCode Todo List Tool (`opencode.tools.todolist`)
 
-> **Note**: This plugin is specifically designed for **OpenCode v2** (`>= 2.0.0`) using the modern TUI slot architecture (`context.ui.slot`) and SolidJS (`@opentui/solid`).
+Hierarchical todo list management tool for OpenCode agents and sessions.
 
-A real-time hierarchical task and todo list manager widget for the [OpenCode](https://opencode.ai) v2 TUI composer and agent workflows.
+## Tool: `manage_todo_list`
 
-```text
-┌ Todos (2/3) ──────────────────────┐
-│ [x] 1. Investigate architecture   │
-│ [~] 2. Implement core engine  ⠋   │
-│     [x] 2.1 Storage backend       │
-│     [~] 2.2 Reconciler layout ⠋   │
-│ [ ] 3. Run test verification      │
-└───────────────────────────────────┘
+The plugin exposes a single tool `manage_todo_list` to track and update multi-step task progress.
+
+### Operations
+
+- `read`: Returns the current todo list hierarchy and progress for the active session.
+- `write`: Sets or replaces the todo list hierarchy. Passing `todos: []` (or omitting `todos`) clears the list.
+
+### Parameters (`write`)
+
+| Field | Type | Description |
+|---|---|---|
+| `operation` | `"read" \| "write"` | Operation to execute. |
+| `todos` | `Array<TodoItem>` | List of hierarchical todo items (optional on `write`, defaults to `[]`). |
+
+#### `TodoItem` Schema
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `id` | `string` | Optional | Task ID (e.g. `"1"`, `"1.1"`). Auto-assigned sequentially if omitted. |
+| `title` / `content` | `string` | Optional | Task summary or description. |
+| `status` | `string` | Optional | `"pending"`, `"in_progress"`, `"completed"`, or `"cancelled"` (default: `"pending"`). |
+| `priority` | `string` | Optional | `"high"`, `"medium"`, or `"low"`. |
+| `children` | `Array<SubTodo>` | Optional | Nested subtasks. |
+
+### Status Rules
+
+1. **Single Active Task**: At most one task or subtask may be `in_progress` at any time.
+2. **Hierarchy Invariant**: If a subtask is `in_progress`, its parent task must also be `in_progress`.
+3. **Auto-Completion**: When all subtasks of a parent are `completed`, the parent automatically resolves to `completed`.
+
+### Usage Examples
+
+#### Reading Current Todos
+
+```json
+{
+  "operation": "read"
+}
 ```
 
----
+#### Writing / Updating Todos
 
-## Compatibility
+```json
+{
+  "operation": "write",
+  "todos": [
+    {
+      "id": "1",
+      "content": "Design architecture",
+      "status": "completed"
+    },
+    {
+      "id": "2",
+      "content": "Implement backend",
+      "status": "in_progress",
+      "priority": "high",
+      "children": [
+        {
+          "id": "2.1",
+          "content": "Database schema",
+          "status": "completed"
+        },
+        {
+          "id": "2.2",
+          "content": "API endpoints",
+          "status": "in_progress"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "content": "Write tests",
+      "status": "pending"
+    }
+  ]
+}
+```
 
-- **OpenCode**: `v2.0.0` or higher
-- **Runtime**: Bun (`>= 1.0.0`)
+#### Clearing Todos
 
----
-
-## Features
-
-- **Hierarchical Task Management**: Structured parent tasks and subtasks with real-time progress calculation.
-- **Active Task Spinner**: Running braille spinner on active tasks (`in_progress`) synced with session execution.
-- **Auto Completion**: Automatically marks parent tasks completed when all subtasks succeed.
-- **Session-Scoped Storage**: Isolated JSON storage per session under `~/.config/opencode/tmp/<sessionID>/` with file locking and corruption recovery.
-- **Collapsible TUI Widget**: Mounts into `session.composer.top` with single-click expansion and clear actions.
-- **Theme-Aware**: Seamlessly adapts to active OpenCode v2 theme borders and status colors.
+```json
+{
+  "operation": "write",
+  "todos": []
+}
+```
 
 ---
 
 ## Installation
 
-### Method 1: Local Plugin Directory (Recommended)
-
-Clone the repository into your OpenCode plugins folder:
+Clone into your OpenCode plugins directory:
 
 ```bash
 git clone https://github.com/MomoPi-Dark/opencode.tools.todolist.git ~/.config/opencode/plugins/opencode.tools.todolist
-```
-
-Install dependencies:
-
-```bash
+cd ~/.config/opencode/plugins/opencode.tools.todolist
 bun install
 ```
-
----
 
 ## Development
 
 ```bash
-bun run typecheck
-bun run test
-bun run build
+bun run check
 ```
-
-The test suite uses an isolated temporary storage directory and does not modify real session data.
