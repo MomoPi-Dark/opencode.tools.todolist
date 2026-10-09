@@ -39,25 +39,25 @@ async function runSuite() {
 
   {
     const input = buildTodosFromInput([
-      { title: "Task 1", status: "not-started" },
-      { title: "Task 2", status: "not-started" },
-      { title: "Task 3", status: "not-started" },
+      { title: "Task 1" },
+      { title: "Task 2", status: "pending" },
+      { title: "Task 3" },
     ]);
     await writeTodos(TEST_SESSION, input);
     const result = await readTodos(TEST_SESSION);
     assert.equal(result.length, 3);
     assert.ok(result.every((t) => t.status === "pending"));
-    console.log("✔ Skenario 1: 3 item not-started tersimpan sebagai pending");
+    console.log("✔ Skenario 1: Item tanpa status default tersimpan sebagai pending");
   }
 
   {
     const input = buildTodosFromInput([
-      { title: "Task A", status: "in-progress" },
-      { title: "Task B", status: "in_progress" },
+      { title: "Task A", status: "in_progress" },
+      { title: "Task B", status: "pending" },
     ]);
     assert.equal(input[0].status, "in_progress");
-    assert.equal(input[1].status, "in_progress");
-    console.log("✔ Skenario 2: Status 'in-progress' dinormalisasi ke 'in_progress'");
+    assert.equal(input[1].status, "pending");
+    console.log("✔ Skenario 2: Status 'in_progress' dan 'pending' valid");
   }
 
   {
@@ -154,15 +154,16 @@ async function runSuite() {
   {
     const formatted = buildTodosFromInput([
       {
-        status: "not-started",
-        children: [{ status: "not-started" }],
+        children: [{}],
       },
     ]);
     assert.equal(formatted[0].id, "1");
     assert.equal(formatted[0].content, "Task 1");
+    assert.equal(formatted[0].status, "pending");
     assert.equal(formatted[0].children?.[0].id, "1.1");
     assert.equal(formatted[0].children?.[0].content, "Subtask 1");
-    console.log("✔ Skenario 9: ID berurutan dan fallback content terverifikasi");
+    assert.equal(formatted[0].children?.[0].status, "pending");
+    console.log("✔ Skenario 9: ID berurutan, default pending, dan fallback content terverifikasi");
   }
 
   {
@@ -180,12 +181,13 @@ async function runSuite() {
     const filePath = getTodoFilePath(TEST_SESSION);
     writeFileSync(filePath, "{ corrupt json", "utf8");
 
-    const recovered = buildTodosFromInput([{ title: "Recovered Task", status: "not-started" }]);
+    const recovered = buildTodosFromInput([{ title: "Recovered Task" }]);
     await writeTodos(TEST_SESSION, recovered);
 
     const check = await readTodos(TEST_SESSION);
     assert.equal(check.length, 1);
     assert.equal(check[0].content, "Recovered Task");
+    assert.equal(check[0].status, "pending");
     console.log("✔ Skenario 11: write berhasil mengarsipkan file korup dan menulis data baru");
   }
 

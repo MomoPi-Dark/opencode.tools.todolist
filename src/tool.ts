@@ -11,11 +11,9 @@ import {
 } from "./todo";
 
 const todoListStatusSchema = z.enum([
-  "not-started",
-  "in-progress",
-  "completed",
   "pending",
   "in_progress",
+  "completed",
   "cancelled",
 ]);
 
@@ -25,7 +23,7 @@ export const subTodoInputSchema = z.object({
   id: z.string().optional(),
   title: z.string().optional(),
   content: z.string().optional(),
-  status: todoListStatusSchema.default("not-started"),
+  status: todoListStatusSchema.default("pending"),
   priority: prioritySchema.optional(),
   note: z.string().optional(),
 });
@@ -58,14 +56,12 @@ export function normalizeStatus(
   raw?: z.infer<typeof todoListStatusSchema>,
 ): TodoStatus {
   switch (raw) {
-    case "in-progress":
     case "in_progress":
       return "in_progress";
     case "completed":
       return "completed";
     case "cancelled":
       return "cancelled";
-    case "not-started":
     case "pending":
     default:
       return "pending";
