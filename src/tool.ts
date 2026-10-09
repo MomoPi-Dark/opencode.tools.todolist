@@ -172,7 +172,7 @@ export async function registerTodoTools(ctx: Plugin.Context): Promise<void> {
 export async function registerTodoPromptHook(
   ctx: Plugin.Context,
 ): Promise<void> {
-  if (typeof ctx.session.hook !== "function") return;
+  if (typeof ctx.session?.hook !== "function") return;
 
   try {
     await ctx.session.hook("context", async (sessionContext) => {

@@ -1,7 +1,9 @@
 import { Plugin } from "@opencode/plugin";
 import { registerTodoTools } from "./src/tool";
 
-export default Plugin.define({
+// OpenCode v2 server plugin definition
+export default {
   id: "opencode.tools.modern.todos",
+  server: registerTodoTools,
   setup: registerTodoTools,
-});
+};
