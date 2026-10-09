@@ -13,8 +13,8 @@
   "scripts": {
     "test": "bun test/manage-todo.test.ts",
     "typecheck": "bun x tsc --noEmit",
-    "check": "bun run typecheck && bun run test && bun run build",
-    "build": "bun build --no-bundle src/todolist.tsx"
+    "check": "bun run typecheck && bun run test && bun run compile",
+    "compile": "bun build --no-bundle src/todolist.tsx"
   },
   "keywords": [
     "opencode",
