@@ -172,7 +172,7 @@ export async function registerTodoTools(ctx: Plugin.Context): Promise<void> {
 export async function registerTodoPromptHook(
   ctx: Plugin.Context,
 ): Promise<void> {
-  if (typeof ctx.session?.hook !== "function") return;
+  if (typeof ctx.session.hook !== "function") return;
 
   try {
     await ctx.session.hook("context", async (sessionContext) => {
@@ -194,7 +194,7 @@ export async function registerTodoPromptHook(
   try {
     await ctx.session.hook("prompt", async (sessionPrompt) => {
       try {
-        if (!sessionPrompt.prompt?.text?.trim()) return;
+        if (!sessionPrompt.prompt.text.trim()) return;
         const hint = consumeTodoHint(sessionPrompt.sessionID);
         if (hint) {
           sessionPrompt.prompt.text = `${sessionPrompt.prompt.text}\n\n${hint}`;

@@ -15,6 +15,12 @@ import {
   type TodoDisplayItem,
   type TodoDisplaySummary,
 } from "./display";
+import { SvgIcon } from "./icons/convert";
+import {
+  arrowDownSvgIcon,
+  arrowRightSvgIcon,
+  removeSvgIcon,
+} from "./icons/icons";
 import {
   getTodosDirectory,
   hashSessionID,
@@ -244,21 +250,36 @@ function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
           paddingLeft={1}
           paddingRight={1}
         >
-          <box flexDirection="row" justifyContent="space-between" width="100%">
+          <box flexDirection="row" justifyContent="space-between">
             <box
               flexDirection="row"
               flexGrow={1}
-              onMouseDown={(e: any) => {
-                if (e?.button === 0) {
-                  e?.stopPropagation?.();
+              onMouseDown={(e) => {
+                if (e.button === 0) {
+                  e.stopPropagation?.();
                   setIsCollapsed(!isCollapsed());
                 }
               }}
             >
+              <box width={2} height={1} marginRight={1}>
+                {isCollapsed() ? (
+                  <SvgIcon
+                    source={arrowRightSvgIcon}
+                    color={theme().text.muted}
+                    width={2}
+                    height={1}
+                  />
+                ) : (
+                  <SvgIcon
+                    source={arrowDownSvgIcon}
+                    color={theme().text.muted}
+                    width={2}
+                    height={1}
+                  />
+                )}
+              </box>
+
               <text>
-                <span style={{ fg: theme().text.muted }}>
-                  {isCollapsed() ? "› " : "▾ "}
-                </span>
                 <span style={{ fg: theme().text.base }}>{"Todos "}</span>
                 <span style={{ fg: theme().text.muted }}>
                   {`(${data().completed}/${data().total})`}
@@ -283,9 +304,9 @@ function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
               flexDirection="row"
               onMouseOver={() => setIsClearHovered(true)}
               onMouseOut={() => setIsClearHovered(false)}
-              onMouseDown={async (e: any) => {
-                if (e?.button === 0) {
-                  e?.stopPropagation?.();
+              onMouseDown={async (e) => {
+                if (e.button === 0) {
+                  e.stopPropagation();
                   const sid = getSessionID();
                   if (sid) {
                     try {
@@ -298,17 +319,16 @@ function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
                 }
               }}
             >
-              <text>
-                <span
-                  style={{
-                    fg: isClearHovered()
-                      ? theme().text.feedback.error.base
-                      : theme().text.muted,
-                  }}
-                >
-                  {"✕"}
-                </span>
-              </text>
+              <SvgIcon
+                color={
+                  isClearHovered()
+                    ? theme().text.feedback.error.base
+                    : theme().text.muted
+                }
+                source={removeSvgIcon}
+                height={1}
+                width={2}
+              />
             </box>
           </box>
 
