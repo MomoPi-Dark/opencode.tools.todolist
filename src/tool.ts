@@ -112,7 +112,8 @@ export async function registerTodoTools(ctx: Plugin.Context): Promise<void> {
       execute: async (input, toolContext) => {
         const raw = (
           input && typeof input === "object" ? { ...input } : {}
-        ) as any;
+        ) as Record<string, any>;
+
         if (raw.todos === undefined) {
           if (Array.isArray(raw.items)) raw.todos = raw.items;
           else if (Array.isArray(raw.tasks)) raw.todos = raw.tasks;
