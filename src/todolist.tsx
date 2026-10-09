@@ -313,7 +313,7 @@ function TodoProgress(props: { context: Plugin.Context; sessionID?: string }) {
                   <box flexDirection="row" height={1}>
                     <text>
                       <Show when={item.depth > 0}>
-                        <span>{"    "}</span>
+                        <span>{"  "}</span>
                       </Show>
                       <span style={{ fg: getStatusColor(item.status) }}>
                         {getItemIcon(item.status, item.icon)}{" "}
