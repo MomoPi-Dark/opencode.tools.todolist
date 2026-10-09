@@ -4,11 +4,7 @@ Hierarchical todo list management tool and real-time TUI progress widget for Ope
 
 ## Overview
 
-The plugin provides dual interfaces for tracking multi-step workflows in OpenCode:
-1. **Interactive TUI Widget**: Mounts directly above the session composer (`session.composer.top`) with live animations and clickable collapse/clear controls.
-2. **LLM Tool Interface (`manage_todo_list`)**: Exposes structured JSON read/write operations with hierarchical ASCII tree output.
-
-### 1. TUI Widget Display
+Mounts above the session composer to track task execution in real-time.
 
 **Collapsed (Default):**
 ```text
@@ -29,88 +25,71 @@ The plugin provides dual interfaces for tracking multi-step workflows in OpenCod
 └─────────────────────────────────────────────────────────────┘
 ```
 
-* **Header Controls**: Click the header title (`› Todos`) to toggle expand/collapse, or click `✕` on the far right to clear the task list.
-* **Status Glyphs**: `✔` completed, `⠋` in-progress spinner (or `⦿` when idle), `○` pending, and `✕` cancelled.
+* Click `› Todos` to expand/collapse.
+* Click `✕` to clear all todos.
 
-### 2. Tool Text Output (`read`)
-
-When inspected by an agent via `manage_todo_list` (`operation: "read"`), tasks are formatted into an ASCII tree with branch arrows (`↳`) for attached notes:
-
-```text
-[x] 1. Design architecture
-[~] 2. Implement backend (1/2)
-    ↳ note: Ensure strict input validation
-    [x] 2.1 Database schema
-    [~] 2.2 API endpoints
-        ↳ note: Return 401 when unauthenticated
-[ ] 3. Write tests
-```
+---
 
 ## Tool: `manage_todo_list`
 
-The plugin exposes a single tool `manage_todo_list` to track and update multi-step task progress.
-
 ### Operations
 
-- `read`: Returns the current todo list hierarchy and progress for the active session.
-- `write`: Sets or replaces the todo list hierarchy. Passing `todos: []` (or omitting `todos`) clears the list.
+- `read`: Returns current todos and formatted progress tree.
+- `write`: Replaces the todo list. Pass `todos: []` (or omit) to clear.
 
-### Parameters (`write`)
+### Schema
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `operation` | `"read" \| "write"` | Required | Operation to perform. |
-| `todos` | `Array<ManageTodoItemInput>` | Optional | Hierarchical task list (defaults to `[]` when omitted). |
+#### 1. `ManageTodoItemInput` (Top-Level Task Input)
 
-#### `ManageTodoItemInput` (Input Item)
-
-Input schema accepted by `manage_todo_list`:
+Input schema for main tasks accepted in `operation: "write"`:
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `id` | `string` | Auto (`"1"`, `"2"`, ...) | Task identifier. Auto-assigned sequentially if omitted. |
 | `title` | `string` | Optional | Task title (used as fallback for `content`). |
-| `content` | `string` | `"Task <id>"` | Task summary shown in the compact TUI list. |
-| `note` | `string` | Optional | Additional technical notes, paths, or execution details. |
+| `content` | `string` | `"Task <id>"` | Task summary shown in the TUI list. |
+| `note` | `string` | Optional | Technical context (rendered with `↳` below the task). |
 | `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | `"pending"` | Current task status. |
-| `priority` | `"high" \| "medium" \| "low"` | Optional | Task priority. |
+| `priority` | `"high" \| "medium" \| "low"` | Optional | Task priority level. |
 | `children` | `Array<SubTodoInput>` | Optional | Nested subtasks list. |
 
-#### `SubTodoInput` (Input Subtask)
+#### 2. `SubTodoInput` (Subtask Input)
 
-Nested subtask schema inside `children`:
+Input schema for nested subtasks inside `children`:
 
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `id` | `string` | Auto (`"<parentId>.1"`, ...) | Subtask identifier. Auto-assigned if omitted. |
 | `title` | `string` | Optional | Subtask title (used as fallback for `content`). |
-| `content` | `string` | `"Subtask <index>"` | Subtask summary shown in the compact TUI list. |
-| `note` | `string` | Optional | Subtask technical notes or acceptance criteria. |
+| `content` | `string` | `"Subtask <index>"` | Subtask summary shown in the TUI list. |
+| `note` | `string` | Optional | Technical context (rendered with `↳` below the subtask). |
 | `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | `"pending"` | Current subtask status. |
-| `priority` | `"high" \| "medium" \| "low"` | Optional | Subtask priority. |
+| `priority` | `"high" \| "medium" \| "low"` | Optional | Subtask priority level. |
 
-#### Stored / Output Schema (`TodoItem`)
+#### 3. `TodoItem` (Stored / Output Schema)
 
-Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[] }`):
+Normalized schema stored in disk and returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[] }`):
 
 | Property | Type | Description |
 |---|---|---|
 | `id` | `string` | Unique task identifier (e.g. `"1"`). |
-| `content` | `string` | Task summary or description. |
-| `note` | `string` | Optional technical notes. Rendered below the task on `read`. |
+| `content` | `string` | Normalized task description. |
+| `note` | `string` | Optional technical notes rendered below the task on `read`. |
 | `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | Normalized status. |
 | `priority` | `"high" \| "medium" \| "low"` | Optional priority. |
 | `children` | `Array<SubTodo>` | Optional list of normalized subtasks (`id`, `content`, optional `note`, `status`, optional `priority`). |
 
-### Status Rules
+### Rules
 
-1. **Single Active Task**: At most one task or subtask may be `in_progress` at any time.
-2. **Hierarchy Invariant**: If a subtask is `in_progress`, its parent task must also be `in_progress`.
-3. **Auto-Completion**: When all subtasks of a parent are `completed`, the parent automatically resolves to `completed`.
+1. **Single active task**: At most 1 task or subtask may be `in_progress` at any time.
+2. **Hierarchy invariant**: If a subtask is `in_progress`, its parent must also be `in_progress`.
+3. **Auto-completion**: Parent resolves to `completed` once all its subtasks are `completed`.
 
-### Usage Examples
+---
 
-#### Reading Current Todos
+## Examples
+
+### Read Todos
 
 **Request:**
 ```json
@@ -119,7 +98,7 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
 }
 ```
 
-**Text Response (`content`):**
+**Output:**
 ```text
 [x] 1. Design architecture
 [~] 2. Implement backend (1/2)
@@ -130,47 +109,9 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
 [ ] 3. Write tests
 ```
 
-**Structured JSON Response (`output.todos`):**
-```json
-{
-  "todos": [
-    {
-      "id": "1",
-      "content": "Design architecture",
-      "status": "completed"
-    },
-    {
-      "id": "2",
-      "content": "Implement backend",
-      "status": "in_progress",
-      "priority": "high",
-      "note": "Ensure strict input validation",
-      "children": [
-        {
-          "id": "2.1",
-          "content": "Database schema",
-          "status": "completed"
-        },
-        {
-          "id": "2.2",
-          "content": "API endpoints",
-          "status": "in_progress",
-          "note": "Return 401 when unauthenticated"
-        }
-      ]
-    },
-    {
-      "id": "3",
-      "content": "Write tests",
-      "status": "pending"
-    }
-  ]
-}
-```
-*(When no tasks are recorded, returns `content: "No todos recorded."` and `output.todos: []`)*
+### Write / Update Todos
 
-#### Writing / Updating Todos
-
+**Request:**
 ```json
 {
   "operation": "write",
@@ -187,17 +128,8 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
       "priority": "high",
       "note": "Ensure strict input validation",
       "children": [
-        {
-          "id": "2.1",
-          "content": "Database schema",
-          "status": "completed"
-        },
-        {
-          "id": "2.2",
-          "content": "API endpoints",
-          "status": "in_progress",
-          "note": "Return 401 when unauthenticated"
-        }
+        { "id": "2.1", "content": "Database schema", "status": "completed" },
+        { "id": "2.2", "content": "API endpoints", "status": "in_progress", "note": "Return 401 when unauthenticated" }
       ]
     },
     {
@@ -209,12 +141,12 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
 }
 ```
 
-**Response (`content`):**
+**Output:**
 ```text
 Todos (2/4) updated successfully.
 ```
 
-#### Clearing Todos
+### Clear Todos
 
 **Request:**
 ```json
@@ -224,7 +156,7 @@ Todos (2/4) updated successfully.
 }
 ```
 
-**Response (`content`):**
+**Output:**
 ```text
 Cleared all todos.
 ```
@@ -232,8 +164,6 @@ Cleared all todos.
 ---
 
 ## Installation
-
-Clone into your OpenCode plugins directory:
 
 ```bash
 git clone https://github.com/MomoPi-Dark/opencode.tools.todolist.git ~/.config/opencode/plugins/opencode.tools.todolist
