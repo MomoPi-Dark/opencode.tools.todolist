@@ -163,6 +163,52 @@ Cleared all todos.
 
 ---
 
+## Automatic Context Hinting (`<todo_hint>`)
+
+The plugin injects a lightweight hint into the prompt so the model stays anchored to active work, without polluting the transcript:
+
+- **Conditional Injection:** Hints are added only when todos exist and at least one is `pending` or `in_progress`. Idle or fully finished sessions inject nothing (0 extra tokens).
+- **Deduplicated per State Change:** A `version` counter bumps on every write (tool `manage_todo_list` or the TUI clear button). The hint is injected **at most once per version**, tracked in a dedicated `hint-marker.json` so repeated turns stay clean.
+- **Static Text (No Stale Numbers):** The hint carries no dynamic counts, so old turns in the history never show outdated figures:
+  ```xml
+  <todo_hint>Active todos exist. If continuing previous work, call manage_todo_list [read] first. Ignore if the user is discussing something else.</todo_hint>
+  ```
+- **Empty-Prompt Guard:** Attachment-only or whitespace-only prompts are skipped, so a hint never fabricates a ghost user message.
+- **Stale Expiration:** If a session is inactive for more than 30 minutes, hints stop automatically.
+- **Universal Portability:** Works out of the box on any OpenCode setup without manual system prompt edits.
+
+- **Ephemeral System Part (100% Invisible in TUI):** The hint is injected directly into the model request's `system` parts via the `context` lifecycle hook. Because this payload is reconstructed per request and never persisted to the chat transcript, **the hint reaches the LLM completely invisibly** — no ghost text in the TUI, no clutter in history.
+- **Graceful Fallback:** If a custom host does not expose the `context` hook, it seamlessly falls back to prompt hook injection with whitespace guards.
+- **Hashed Session Directories (Privacy & Security):** Directories on disk are anonymized using deterministic SHA-256 hashes (`s_<32-hex>`), preventing raw session identifiers from leaking in file system trees. Existing plaintext directories are automatically migrated.
+- **Cross-Platform Native Paths:** Storage locations adapt to the host OS (Windows, macOS, Linux) using each platform's native conventions, with environment-variable overrides respected.
+
+---
+
+## Storage Location (Cross-Platform)
+
+Todo files are stored under a platform-native base directory with no configuration required:
+
+| Platform | Base directory | Resolved example |
+|---|---|---|
+| **Windows** | `%APPDATA%\opencode\tmp` | `C:\Users\Alice\AppData\Roaming\opencode\tmp` |
+| **macOS** | `~/Library/Application Support/opencode/tmp` | `/Users/alice/Library/Application Support/opencode/tmp` |
+| **Linux / BSD** | `$XDG_CONFIG_HOME/opencode/tmp` (fallback `~/.config/opencode/tmp`) | `/home/alice/.config/opencode/tmp` |
+
+Home directory resolution also adapts per platform:
+
+- **Windows:** `USERPROFILE`, then `HOMEDRIVE`+`HOMEPATH`, then `HOME`.
+- **macOS / Linux / BSD:** `HOME`.
+
+### Environment overrides (checked in priority order)
+
+1. `OPENCODE_TODOS_DIR` — explicit override for the todo storage root (used by the test suite).
+2. `OPENCODE_CONFIG_DIR` — honored as `<OPENCODE_CONFIG_DIR>/tmp`.
+3. `XDG_CONFIG_HOME` — honored on **every** platform, so an XDG-style layout can be forced even on Windows/macOS.
+
+Because directory names are hashed (`s_<32-hex>`), the raw `sessionID` never appears on disk, and legacy plaintext directories are migrated transparently on the next write.
+
+---
+
 ## Installation
 
 ```bash
@@ -170,6 +216,8 @@ git clone https://github.com/MomoPi-Dark/opencode.tools.todolist.git ~/.config/o
 cd ~/.config/opencode/plugins/opencode.tools.todolist
 bun install
 ```
+
+> **Important:** `bun install` is **required**. OpenCode loads local plugins from the directory but does not install their dependencies for you. Without it, the plugin will fail to load with `Cannot find package 'zod'`.
 
 ## Development
 

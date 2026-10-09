@@ -15,7 +15,12 @@ import {
   type TodoDisplayItem,
   type TodoDisplaySummary,
 } from "./display";
-import { getTodosDirectory, readTodosSync, writeTodos } from "./store";
+import {
+  getTodosDirectory,
+  hashSessionID,
+  readTodosSync,
+  writeTodos,
+} from "./store";
 import type { TodoStatus } from "./todo";
 
 export {
@@ -28,7 +33,7 @@ export {
 
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
-function TodoProgress(props: { context: Plugin.Context; sessionID?: string }) {
+function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
   const [refresh, setRefresh] = createSignal(0);
   const [isCollapsed, setIsCollapsed] = createSignal(true);
   const [isClearHovered, setIsClearHovered] = createSignal(false);
@@ -122,8 +127,14 @@ function TodoProgress(props: { context: Plugin.Context; sessionID?: string }) {
         }
 
         const nameStr = String(filename);
+        let hashedSid = "";
+        try {
+          if (sid) hashedSid = hashSessionID(sid);
+        } catch {}
+
         if (
           !sid ||
+          (hashedSid && nameStr.startsWith(hashedSid)) ||
           nameStr.startsWith(sid) ||
           nameStr.startsWith(`todos-${sid}-`)
         ) {
@@ -143,7 +154,7 @@ function TodoProgress(props: { context: Plugin.Context; sessionID?: string }) {
     for (const unsub of unsubList) {
       try {
         unsub?.();
-      } catch { }
+      } catch {}
     }
   });
 
@@ -336,13 +347,15 @@ function TodoProgress(props: { context: Plugin.Context; sessionID?: string }) {
 export default Plugin.define({
   id: "opencode.tools.modern.todos.tui",
   setup(context) {
-    const release = context.ui.slot({
-      append: "session.composer.top",
+    const prompt = context.ui.slot({
+      after: "session.composer.top",
       render: (input) => (
-        <TodoProgress context={context} sessionID={input?.sessionID} />
+        <TodoProgress context={context} sessionID={input.sessionID} />
       ),
     });
 
-    return release;
+    return () => {
+      prompt();
+    };
   },
 });

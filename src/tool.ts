@@ -1,5 +1,6 @@
 import type { Plugin } from "@opencode/plugin";
 import { z } from "zod";
+import { consumeTodoHint } from "./hint";
 import { readTodos, updateTodos } from "./store";
 import {
   type SubTodo,
@@ -150,4 +151,58 @@ export async function registerTodoTools(ctx: Plugin.Context): Promise<void> {
       },
     });
   });
+
+  await registerTodoPromptHook(ctx);
+}
+
+/**
+ * Keeps the model anchored to active todos via an EPHEMERAL hint.
+ *
+ * Preferred path: push a `SystemPart` onto the model request's `system`
+ * array (the `"context"` hook). That payload is rebuilt per request and is
+ * never written to the transcript — so the hint reaches the model without
+ * ever appearing in the TUI or history.
+ *
+ * Fallback path: hosts that reject the `"context"` hook name fall back to
+ * appending onto the user prompt (visible once in the transcript).
+ *
+ * Injection stays deduplicated through {@link consumeTodoHint}.
+ */
+export async function registerTodoPromptHook(
+  ctx: Plugin.Context,
+): Promise<void> {
+  if (typeof ctx.session?.hook !== "function") return;
+
+  try {
+    await ctx.session.hook("context", async (sessionContext) => {
+      try {
+        const system = (sessionContext as { system?: unknown })?.system;
+        if (!Array.isArray(system)) return;
+        const hint = consumeTodoHint(sessionContext.sessionID);
+        if (!hint) return;
+        system.push({ type: "text", text: hint });
+      } catch {
+        // Fail-safe: never crash the model request pipeline.
+      }
+    });
+    return;
+  } catch {
+    // Host does not recognize the "context" hook: fall back below.
+  }
+
+  try {
+    await ctx.session.hook("prompt", async (sessionPrompt) => {
+      try {
+        if (!sessionPrompt.prompt?.text?.trim()) return;
+        const hint = consumeTodoHint(sessionPrompt.sessionID);
+        if (hint) {
+          sessionPrompt.prompt.text = `${sessionPrompt.prompt.text}\n\n${hint}`;
+        }
+      } catch {
+        // Fail-safe: never crash the prompt pipeline.
+      }
+    });
+  } catch {
+    // Host supports neither hook: feature degrades gracefully.
+  }
 }
