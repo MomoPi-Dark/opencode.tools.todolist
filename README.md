@@ -4,25 +4,46 @@ Hierarchical todo list management tool and real-time TUI progress widget for Ope
 
 ## Overview
 
-The plugin mounts a collapsible widget above the session composer (`session.composer.top`) to reflect task execution in real-time:
+The plugin provides dual interfaces for tracking multi-step workflows in OpenCode:
+1. **Interactive TUI Widget**: Mounts directly above the session composer (`session.composer.top`) with live animations and clickable collapse/clear controls.
+2. **LLM Tool Interface (`manage_todo_list`)**: Exposes structured JSON read/write operations with hierarchical ASCII tree output.
+
+### 1. TUI Widget Display
 
 **Collapsed (Default):**
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│ › Todos (1/3)   ⠋ 2.2 API endpoints                       ✕ │
+│ › Todos (2/4)   ⠋ 2.2 API endpoints                       ✕ │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **Expanded:**
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│ ▾ Todos (1/3)                                             ✕ │
-│   [x] 1. Design architecture                                │
-│   [~] 2. Implement backend                                  │
-│       [x] 2.1 Database schema                               │
+│ ▾ Todos (2/4)                                             ✕ │
+│   ✔ 1. Design architecture                                  │
+│   ⠋ 2. Implement backend                                    │
+│       ✔ 2.1 Database schema                                 │
 │       ⠋ 2.2 API endpoints                                   │
-│   [ ] 3. Write tests                                        │
+│   ○ 3. Write tests                                          │
 └─────────────────────────────────────────────────────────────┘
+```
+
+* **Header Controls**: Click the header title (`› Todos`) to toggle expand/collapse, or click `✕` on the far right to clear the task list.
+* **Status Glyphs**: `✔` completed, `⠋` in-progress spinner (or `⦿` when idle), `○` pending, and `✕` cancelled.
+
+### 2. Tool Text Output (`read`)
+
+When inspected by an agent via `manage_todo_list` (`operation: "read"`), tasks are formatted into an ASCII tree with branch arrows (`↳`) for attached notes:
+
+```text
+[x] 1. Design architecture
+[~] 2. Implement backend (1/2)
+    ↳ note: Ensure strict input validation
+    [x] 2.1 Database schema
+    [~] 2.2 API endpoints
+        ↳ note: Return 401 when unauthenticated
+[ ] 3. Write tests
 ```
 
 ## Tool: `manage_todo_list`
