@@ -36,20 +36,47 @@ The plugin exposes a single tool `manage_todo_list` to track and update multi-st
 
 ### Parameters (`write`)
 
-| Field | Type | Description |
-|---|---|---|
-| `operation` | `"read" \| "write"` | Operation to execute. |
-| `todos` | `Array<TodoItem>` | List of hierarchical todo items (optional on `write`, defaults to `[]`). |
-
-#### `TodoItem` Schema
-
-| Property | Type | Required | Description |
+| Field | Type | Required | Description |
 |---|---|---|---|
-| `id` | `string` | Optional | Task ID (e.g. `"1"`, `"1.1"`). Auto-assigned sequentially if omitted. |
-| `title` / `content` | `string` | Optional | Task summary or description. |
-| `status` | `string` | Optional | `"pending"`, `"in_progress"`, `"completed"`, or `"cancelled"` (default: `"pending"`). |
-| `priority` | `string` | Optional | `"high"`, `"medium"`, or `"low"`. |
-| `children` | `Array<SubTodo>` | Optional | Nested subtasks. |
+| `operation` | `"read" \| "write"` | Required | Operation to perform. |
+| `todos` | `Array<ManageTodoItemInput>` | Optional | Hierarchical task list (defaults to `[]` when omitted). |
+
+#### `ManageTodoItemInput` (Input Item)
+
+Input schema accepted by `manage_todo_list`:
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `id` | `string` | Auto (`"1"`, `"2"`, ...) | Task identifier. Auto-assigned sequentially if omitted. |
+| `title` | `string` | Optional | Task title (used as fallback for `content`). |
+| `content` | `string` | `"Task <id>"` | Task description. |
+| `status` | `"not-started" \| "in-progress" \| "pending" \| "in_progress" \| "completed" \| "cancelled"` | `"not-started"` | Current task status. Normalized internally to `"pending"`, `"in_progress"`, `"completed"`, or `"cancelled"`. |
+| `priority` | `"high" \| "medium" \| "low"` | Optional | Task priority. |
+| `children` | `Array<SubTodoInput>` | Optional | Nested subtasks list. |
+
+#### `SubTodoInput` (Input Subtask)
+
+Nested subtask schema inside `children`:
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `id` | `string` | Auto (`"<parentId>.1"`, ...) | Subtask identifier. Auto-assigned if omitted. |
+| `title` | `string` | Optional | Subtask title (used as fallback for `content`). |
+| `content` | `string` | `"Subtask <index>"` | Subtask description. |
+| `status` | `"not-started" \| "in-progress" \| "pending" \| "in_progress" \| "completed" \| "cancelled"` | `"not-started"` | Current subtask status. |
+| `priority` | `"high" \| "medium" \| "low"` | Optional | Subtask priority. |
+
+#### Stored / Output Schema (`TodoItem`)
+
+Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[] }`):
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | `string` | Unique task identifier (e.g. `"1"`). |
+| `content` | `string` | Task summary or description. |
+| `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | Normalized status. |
+| `priority` | `"high" \| "medium" \| "low"` | Optional priority. |
+| `children` | `Array<SubTodo>` | Optional list of normalized subtasks (`id`, `content`, `status`, optional `priority`). |
 
 ### Status Rules
 
