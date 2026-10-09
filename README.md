@@ -1,6 +1,29 @@
 # OpenCode Todo List Tool (`opencode.tools.todolist`)
 
-Hierarchical todo list management tool for OpenCode agents and sessions.
+Hierarchical todo list management tool and real-time TUI progress widget for OpenCode.
+
+## Overview
+
+The plugin mounts a collapsible widget above the session composer (`session.composer.top`) to reflect task execution in real-time:
+
+**Collapsed (Default):**
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ › Todos (1/3)   ⠋ 2.2 API endpoints                       ✕ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Expanded:**
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ ▾ Todos (1/3)                                             ✕ │
+│   [x] 1. Design architecture                                │
+│   [~] 2. Implement backend                                  │
+│       [x] 2.1 Database schema                               │
+│       ⠋ 2.2 API endpoints                                   │
+│   [ ] 3. Write tests                                        │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ## Tool: `manage_todo_list`
 
