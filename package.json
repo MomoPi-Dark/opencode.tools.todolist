@@ -1,0 +1,46 @@
+{
+  "name": "opencode-sidebar-modern-todolist",
+  "version": "1.0.0",
+  "description": "OpenCode TUI sidebar plugin for hierarchical todo list tracking.",
+  "type": "module",
+  "main": "./tui.ts",
+  "module": "./tui.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./tui": "./tui.ts"
+  },
+  "scripts": {
+    "test": "bun test/manage-todo.test.ts",
+    "typecheck": "bun x tsc --noEmit",
+    "check": "bun run typecheck && bun run test && bun run build",
+    "build": "bun build --no-bundle src/todolist.tsx"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "opentui",
+    "tui",
+    "todolist",
+    "todos"
+  ],
+  "author": "Gamflaz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MomoPi-Dark/opencode.tools.todolist"
+  },
+  "dependencies": {
+    "@opencode/client": "^2.0.18",
+    "@opencode/plugin": "^2.0.18",
+    "@opencode/theme": "^2.0.21",
+    "@opentui/core": "0.5.12",
+    "@opentui/solid": "0.5.12",
+    "proper-lockfile": "^4.1.2",
+    "solid-js": "1.9.3",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/proper-lockfile": "^4.1.4"
+  }
+}
