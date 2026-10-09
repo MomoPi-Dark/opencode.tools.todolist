@@ -17,11 +17,11 @@ Mounts above the session composer to track task execution in real-time.
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │ ▾ Todos (2/4)                                             ✕ │
-│   ✔ 1. Design architecture                                  │
-│   ⠋ 2. Implement backend                                    │
-│       ✔ 2.1 Database schema                                 │
-│       ⠋ 2.2 API endpoints                                   │
-│   ○ 3. Write tests                                          │
+│ ✔ 1. Design architecture                                    │
+│ ⠋ 2. Implement backend                                      │
+│   ✔ 2.1 Database schema                                     │
+│   ⠋ 2.2 API endpoints                                       │
+│ ○ 3. Write tests                                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
