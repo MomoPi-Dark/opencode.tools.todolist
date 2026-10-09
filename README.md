@@ -49,7 +49,8 @@ Input schema accepted by `manage_todo_list`:
 |---|---|---|---|
 | `id` | `string` | Auto (`"1"`, `"2"`, ...) | Task identifier. Auto-assigned sequentially if omitted. |
 | `title` | `string` | Optional | Task title (used as fallback for `content`). |
-| `content` | `string` | `"Task <id>"` | Task description. |
+| `content` | `string` | `"Task <id>"` | Task summary shown in the compact TUI list. |
+| `note` | `string` | Optional | Additional technical notes, paths, or execution details. |
 | `status` | `"not-started" \| "in-progress" \| "pending" \| "in_progress" \| "completed" \| "cancelled"` | `"not-started"` | Current task status. Normalized internally to `"pending"`, `"in_progress"`, `"completed"`, or `"cancelled"`. |
 | `priority` | `"high" \| "medium" \| "low"` | Optional | Task priority. |
 | `children` | `Array<SubTodoInput>` | Optional | Nested subtasks list. |
@@ -62,7 +63,8 @@ Nested subtask schema inside `children`:
 |---|---|---|---|
 | `id` | `string` | Auto (`"<parentId>.1"`, ...) | Subtask identifier. Auto-assigned if omitted. |
 | `title` | `string` | Optional | Subtask title (used as fallback for `content`). |
-| `content` | `string` | `"Subtask <index>"` | Subtask description. |
+| `content` | `string` | `"Subtask <index>"` | Subtask summary shown in the compact TUI list. |
+| `note` | `string` | Optional | Subtask technical notes or acceptance criteria. |
 | `status` | `"not-started" \| "in-progress" \| "pending" \| "in_progress" \| "completed" \| "cancelled"` | `"not-started"` | Current subtask status. |
 | `priority` | `"high" \| "medium" \| "low"` | Optional | Subtask priority. |
 
@@ -74,9 +76,10 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
 |---|---|---|
 | `id` | `string` | Unique task identifier (e.g. `"1"`). |
 | `content` | `string` | Task summary or description. |
+| `note` | `string` | Optional technical notes. Rendered below the task on `read`. |
 | `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | Normalized status. |
 | `priority` | `"high" \| "medium" \| "low"` | Optional priority. |
-| `children` | `Array<SubTodo>` | Optional list of normalized subtasks (`id`, `content`, `status`, optional `priority`). |
+| `children` | `Array<SubTodo>` | Optional list of normalized subtasks (`id`, `content`, optional `note`, `status`, optional `priority`). |
 
 ### Status Rules
 
@@ -110,6 +113,7 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
       "content": "Implement backend",
       "status": "in_progress",
       "priority": "high",
+      "note": "Ensure strict input validation",
       "children": [
         {
           "id": "2.1",
@@ -119,7 +123,8 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
         {
           "id": "2.2",
           "content": "API endpoints",
-          "status": "in_progress"
+          "status": "in_progress",
+          "note": "Return 401 when unauthenticated"
         }
       ]
     },

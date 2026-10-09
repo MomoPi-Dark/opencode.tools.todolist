@@ -1,6 +1,6 @@
 {
   "name": "opencode-sidebar-modern-todolist",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "OpenCode TUI sidebar plugin for hierarchical todo list tracking.",
   "type": "module",
   "main": "./tui.ts",

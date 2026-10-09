@@ -297,6 +297,37 @@ async function runSuite() {
     console.log("✔ Skenario 16: Baris TUI memiliki layout row terisolasi");
   }
 
+  {
+    const inputWithNotes = buildTodosFromInput([
+      {
+        id: "1",
+        title: "Setup database",
+        note: "PostgreSQL 16 connection pooling",
+        children: [
+          {
+            id: "1.1",
+            title: "Run migrations",
+            note: "Prisma schema v2",
+          },
+        ],
+      },
+    ]);
+
+    assert.equal(inputWithNotes[0].note, "PostgreSQL 16 connection pooling");
+    assert.equal(inputWithNotes[0].children?.[0].note, "Prisma schema v2");
+
+    const rendered = formatReadOutput(inputWithNotes);
+    assert.ok(
+      rendered.includes("    ↳ note: PostgreSQL 16 connection pooling"),
+      "Output render harus memuat note parent dengan anak panah ↳",
+    );
+    assert.ok(
+      rendered.includes("        ↳ note: Prisma schema v2"),
+      "Output render harus memuat note subtask dengan anak panah ↳",
+    );
+    console.log("✔ Skenario 17: Field note terintegrasi pada input, model, dan tree render dengan anak panah");
+  }
+
   cleanupSandbox();
 }
 

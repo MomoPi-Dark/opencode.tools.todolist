@@ -8,6 +8,7 @@ export interface SubTodo {
   content: string;
   status: TodoStatus;
   priority?: Priority;
+  note?: string;
 }
 
 export interface TodoItem {
@@ -15,6 +16,7 @@ export interface TodoItem {
   content: string;
   status: TodoStatus;
   priority?: Priority;
+  note?: string;
   children?: SubTodo[];
 }
 
@@ -23,6 +25,7 @@ export const SubTodoSchema = z.object({
   content: z.string().describe("Subtask description"),
   status: z.enum(["pending", "in_progress", "completed", "cancelled"]),
   priority: z.enum(["high", "medium", "low"]).optional(),
+  note: z.string().optional(),
 });
 
 export const TodoItemSchema = z.object({
@@ -30,6 +33,7 @@ export const TodoItemSchema = z.object({
   content: z.string().describe("Main task summary"),
   status: z.enum(["pending", "in_progress", "completed", "cancelled"]),
   priority: z.enum(["high", "medium", "low"]).optional(),
+  note: z.string().optional(),
   children: z.array(SubTodoSchema).optional(),
 });
 
@@ -200,6 +204,9 @@ export function renderTodoTree(todos: TodoItem[]): string {
       ? parent.content
       : `${parent.id}. ${parent.content}`;
     lines.push(`${icon} ${parentLabel}${progText}`);
+    if (parent.note) {
+      lines.push(`    ↳ note: ${parent.note}`);
+    }
 
     if (parent.children) {
       for (const child of parent.children) {
@@ -208,6 +215,9 @@ export function renderTodoTree(todos: TodoItem[]): string {
           ? child.content
           : `${child.id} ${child.content}`;
         lines.push(`    ${childIcon} ${childLabel}`);
+        if (child.note) {
+          lines.push(`        ↳ note: ${child.note}`);
+        }
       }
     }
   }

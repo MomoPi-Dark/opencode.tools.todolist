@@ -27,6 +27,7 @@ export const subTodoInputSchema = z.object({
   content: z.string().optional(),
   status: todoListStatusSchema.default("not-started"),
   priority: prioritySchema.optional(),
+  note: z.string().optional(),
 });
 
 export const manageTodoItemSchema = subTodoInputSchema.extend({
@@ -84,6 +85,7 @@ export function buildTodosFromInput(
       content: (c.title || c.content || `Subtask ${cIndex + 1}`).trim(),
       status: normalizeStatus(c.status),
       ...(c.priority ? { priority: c.priority } : {}),
+      ...(c.note?.trim() ? { note: c.note.trim() } : {}),
     }));
 
     return {
@@ -91,6 +93,7 @@ export function buildTodosFromInput(
       content,
       status,
       ...(item.priority ? { priority: item.priority } : {}),
+      ...(item.note?.trim() ? { note: item.note.trim() } : {}),
       ...(children.length > 0 ? { children } : {}),
     };
   });
