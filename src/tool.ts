@@ -1,4 +1,4 @@
-import type { Plugin } from "@opencode/plugin";
+import { Plugin } from "@opencode/plugin";
 import { z } from "zod";
 import { consumeTodoHint } from "./hint";
 import { readTodos, updateTodos } from "./store";
@@ -194,7 +194,7 @@ export async function registerTodoPromptHook(
   try {
     await ctx.session.hook("prompt", async (sessionPrompt) => {
       try {
-        if (!sessionPrompt.prompt.text.trim()) return;
+        if (!sessionPrompt.prompt?.text?.trim()) return;
         const hint = consumeTodoHint(sessionPrompt.sessionID);
         if (hint) {
           sessionPrompt.prompt.text = `${sessionPrompt.prompt.text}\n\n${hint}`;
@@ -207,3 +207,8 @@ export async function registerTodoPromptHook(
     // Host supports neither hook: feature degrades gracefully.
   }
 }
+
+export default Plugin.define({
+  id: "opencode.tools.modern.todos",
+  setup: registerTodoTools,
+});
