@@ -1,6 +1,6 @@
 {
   "name": "opencode-sidebar-modern-todolist",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OpenCode TUI sidebar plugin for hierarchical todo list tracking.",
   "type": "module",
   "main": "./tui.ts",
@@ -33,8 +33,8 @@
     "@opencode/client": "^2.0.18",
     "@opencode/plugin": "^2.0.18",
     "@opencode/theme": "^2.0.21",
-    "@opentui/core": "0.5.12",
-    "@opentui/solid": "0.5.12",
+    "@opentui/core": "^0.5.17",
+    "@opentui/solid": "^0.5.17",
     "proper-lockfile": "^4.1.2",
     "solid-js": "^1.9.4",
     "zod": "^4.1.8"
