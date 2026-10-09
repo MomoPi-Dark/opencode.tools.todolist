@@ -112,11 +112,62 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
 
 #### Reading Current Todos
 
+**Request:**
 ```json
 {
   "operation": "read"
 }
 ```
+
+**Text Response (`content`):**
+```text
+[x] 1. Design architecture
+[~] 2. Implement backend (1/2)
+    ↳ note: Ensure strict input validation
+    [x] 2.1 Database schema
+    [~] 2.2 API endpoints
+        ↳ note: Return 401 when unauthenticated
+[ ] 3. Write tests
+```
+
+**Structured JSON Response (`output.todos`):**
+```json
+{
+  "todos": [
+    {
+      "id": "1",
+      "content": "Design architecture",
+      "status": "completed"
+    },
+    {
+      "id": "2",
+      "content": "Implement backend",
+      "status": "in_progress",
+      "priority": "high",
+      "note": "Ensure strict input validation",
+      "children": [
+        {
+          "id": "2.1",
+          "content": "Database schema",
+          "status": "completed"
+        },
+        {
+          "id": "2.2",
+          "content": "API endpoints",
+          "status": "in_progress",
+          "note": "Return 401 when unauthenticated"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "content": "Write tests",
+      "status": "pending"
+    }
+  ]
+}
+```
+*(When no tasks are recorded, returns `content: "No todos recorded."` and `output.todos: []`)*
 
 #### Writing / Updating Todos
 
@@ -158,13 +209,24 @@ Normalized schema returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[]
 }
 ```
 
+**Response (`content`):**
+```text
+Todos (2/4) updated successfully.
+```
+
 #### Clearing Todos
 
+**Request:**
 ```json
 {
   "operation": "write",
   "todos": []
 }
+```
+
+**Response (`content`):**
+```text
+Cleared all todos.
 ```
 
 ---
