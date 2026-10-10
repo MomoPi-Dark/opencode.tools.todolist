@@ -1,7 +1,7 @@
 import { Plugin } from "@opencode/plugin";
 import { z } from "zod";
-import { consumeTodoHint } from "./hint";
-import { readTodos, updateTodos } from "./store/store";
+import { consumeTodoHint } from "./hint.js";
+import { readTodos, updateTodos } from "./store.js";
 import {
   type SubTodo,
   type TodoItem,
@@ -9,7 +9,7 @@ import {
   TodoItemSchema,
   calculateGlobalStats,
   renderTodoTree,
-} from "./todo";
+} from "./todo.js";
 
 const todoListStatusSchema = z.enum([
   "pending",

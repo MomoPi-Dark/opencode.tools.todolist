@@ -14,20 +14,20 @@ import {
   getTodoDisplaySummary,
   type TodoDisplayItem,
   type TodoDisplaySummary,
-} from "./display";
-import { SvgIcon } from "./icons/convert";
+} from "./display.js";
+import { SvgIcon } from "./icons/convert.js";
 import {
   arrowDownSvgIcon,
   arrowRightSvgIcon,
   removeSvgIcon,
-} from "./icons/icons";
+} from "./icons/icons.js";
 import {
   getTodosDirectory,
   hashSessionID,
   readTodosSync,
   writeTodos,
-} from "./store/store";
-import type { TodoStatus } from "./todo";
+} from "./store.js";
+import type { TodoStatus } from "./todo.js";
 
 export {
   formatTodoProgress,

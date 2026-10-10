@@ -1,6 +1,6 @@
 import { usePlugin } from "@opencode/plugin/tui";
 import { RGBA, rgbToHex } from "@opentui/core";
-import { ImageProps } from "@opentui/solid";
+import { type ImageProps } from "@opentui/solid";
 import { Resvg } from "@resvg/resvg-js";
 import { createMemo } from "solid-js";
 

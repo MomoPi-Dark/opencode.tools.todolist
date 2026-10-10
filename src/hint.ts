@@ -3,8 +3,8 @@ import {
   getHintMarkerPath,
   normalizeSessionID,
   readTodoData,
-} from "./store/store";
-import type { TodoItem, TodoStatus } from "./todo";
+} from "./store.js";
+import type { TodoItem, TodoStatus } from "./todo.js";
 
 export const DEFAULT_STALE_MS = 30 * 60 * 1000; // 30 minutes
 

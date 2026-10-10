@@ -6,28 +6,17 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./server": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./tui": {
-      "types": "./dist/types/todolist.d.ts",
-      "import": "./dist/tui.js"
-    },
-    "./package.json": "./package.json"
+    ".": "./dist/index.js",
+    "./tui": "./dist/tui.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/build-tui.mjs",
     "test": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs",
     "typecheck": "tsc --noEmit",
     "check": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs && node scripts/build-tsx.mjs"

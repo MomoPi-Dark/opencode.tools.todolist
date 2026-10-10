@@ -1,4 +1,4 @@
-import { calculateGlobalStats, type TodoItem, type TodoStatus } from "./todo";
+import { calculateGlobalStats, type TodoItem, type TodoStatus } from "./todo.js";
 
 export interface TodoDisplayItem {
   id: string;

@@ -31,7 +31,7 @@ const solidPlugin = {
 const builds = [
   { entrypoint: "../src/index.ts", output: "index.js", plugins: [] },
   {
-    entrypoint: "../src/todolist.tsx",
+    entrypoint: "../src/tui.tsx",
     output: "tui.js",
     plugins: [solidPlugin],
   },

@@ -12,7 +12,7 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { TodoItem } from "../src/todo";
+import type { TodoItem } from "../src/todo.js";
 
 const sandboxDir = mkdtempSync(join(tmpdir(), "opencode-todo-test-"));
 process.env.OPENCODE_TODOS_DIR = sandboxDir;
@@ -26,23 +26,23 @@ const {
   resolveConfigHome,
   resolveHomeDir,
   resolveTodosBaseDir,
-} = await import("../src/store/store");
+} = await import("../src/store.js");
 
 assert.ok(
   getTodoFilePath("guard_probe").startsWith(sandboxDir),
   `CRITICAL: Store path is outside sandbox! Target: ${getTodoFilePath("guard_probe")}, Sandbox: ${sandboxDir}`,
 );
 
-const { getTodoDisplaySummary } = await import("../src/display");
+const { getTodoDisplaySummary } = await import("../src/display.js");
 const {
   buildTodosFromInput,
   formatReadOutput,
   manageTodoListSchema,
   registerTodoPromptHook,
-} = await import("../src");
-const { consumeTodoHint, TODO_HINT } = await import("../src/hint");
-const { readTodoData } = await import("../src/store/store");
-const { validateAndNormalizeTodos } = await import("../src/todo");
+} = await import("../src/index.js");
+const { consumeTodoHint, TODO_HINT } = await import("../src/hint.js");
+const { readTodoData } = await import("../src/store.js");
+const { validateAndNormalizeTodos } = await import("../src/todo.js");
 
 const TEST_SESSION = "test_todolist_session";
 
@@ -71,8 +71,8 @@ async function runSuite() {
       { title: "Task A", status: "in_progress" },
       { title: "Task B", status: "pending" },
     ]);
-    assert.equal(input[0].status, "in_progress");
-    assert.equal(input[1].status, "pending");
+    assert.equal(input[0]!.status, "in_progress");
+    assert.equal(input[1]!.status, "pending");
     console.log("✔ Scenario 2: Status 'in_progress' and 'pending' are valid");
   }
 
@@ -185,12 +185,12 @@ async function runSuite() {
         children: [{}],
       },
     ]);
-    assert.equal(formatted[0].id, "1");
-    assert.equal(formatted[0].content, "Task 1");
-    assert.equal(formatted[0].status, "pending");
-    assert.equal(formatted[0].children?.[0].id, "1.1");
-    assert.equal(formatted[0].children?.[0].content, "Subtask 1");
-    assert.equal(formatted[0].children?.[0].status, "pending");
+    assert.equal(formatted[0]!.id, "1");
+    assert.equal(formatted[0]!.content, "Task 1");
+    assert.equal(formatted[0]!.status, "pending");
+    assert.equal(formatted[0]!.children?.[0]?.id, "1.1");
+    assert.equal(formatted[0]!.children?.[0]?.content, "Subtask 1");
+    assert.equal(formatted[0]!.children?.[0]?.status, "pending");
     console.log(
       "✔ Scenario 9: Sequential IDs, default pending, and fallback content verified",
     );
@@ -216,8 +216,8 @@ async function runSuite() {
 
     const check = await readTodos(TEST_SESSION);
     assert.equal(check.length, 1);
-    assert.equal(check[0].content, "Recovered Task");
-    assert.equal(check[0].status, "pending");
+    assert.equal(check[0]!.content, "Recovered Task");
+    assert.equal(check[0]!.status, "pending");
     console.log(
       "✔ Scenario 11: write archives corrupt file and stores new valid data",
     );
@@ -238,7 +238,7 @@ async function runSuite() {
     const check = validateAndNormalizeTodos(items);
     assert.ok(check.valid);
     if (check.valid) {
-      assert.equal(check.data[0].status, "completed");
+      assert.equal(check.data[0]!.status, "completed");
     }
     console.log(
       "✔ Scenario 12: Parent with all completed children automatically completes",
@@ -283,7 +283,7 @@ async function runSuite() {
       }),
     );
     const legacy = await readTodos(session);
-    assert.equal(legacy[0].children?.[0].status, "in_progress");
+    assert.equal(legacy[0]!.children?.[0]?.status, "in_progress");
 
     await writeTodos(session, buildTodosFromInput([{ title: "Baru" }]));
     assert.ok(
@@ -292,7 +292,7 @@ async function runSuite() {
       ),
       "files that only violate rules must not be marked corrupt",
     );
-    assert.equal((await readTodos(session))[0].content, "Baru");
+    assert.equal((await readTodos(session))[0]!.content, "Baru");
     console.log(
       "✔ Scenario 14a: Valid JSON violating rules is overwritten cleanly without corruption archive",
     );
@@ -319,7 +319,7 @@ async function runSuite() {
     assert.ok(archived, "Malformed JSON must be archived on disk");
 
     const check = await readTodos(session);
-    assert.equal(check[0].content, "Baru");
+    assert.equal(check[0]!.content, "Baru");
     console.log(
       "✔ Scenario 14b: Malformed file is archived and replaced with new data",
     );
@@ -334,7 +334,7 @@ async function runSuite() {
 
   {
     const tuiSource = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), "../src/todolist.tsx"),
+      join(dirname(fileURLToPath(import.meta.url)), "../src/tui.tsx"),
       "utf8",
     );
     assert.match(
@@ -361,8 +361,8 @@ async function runSuite() {
       },
     ]);
 
-    assert.equal(inputWithNotes[0].note, "PostgreSQL 16 connection pooling");
-    assert.equal(inputWithNotes[0].children?.[0].note, "Prisma schema v2");
+    assert.equal(inputWithNotes[0]!.note, "PostgreSQL 16 connection pooling");
+    assert.equal(inputWithNotes[0]!.children?.[0]?.note, "Prisma schema v2");
 
     const rendered = formatReadOutput(inputWithNotes);
     assert.ok(
@@ -594,7 +594,7 @@ async function runSuite() {
 
     // Verify data reads back accurately
     const readBack = await readTodos(secretSession);
-    assert.equal(readBack[0].content, "Secret task");
+    assert.equal(readBack[0]!.content, "Secret task");
 
     // Scenario 20: Backward compatibility & Auto-migration
     const legacySession = "ses_legacy_unmigrated_123";
@@ -611,7 +611,7 @@ async function runSuite() {
 
     // Reading legacy unmigrated directory succeeds
     const legacyRead = await readTodos(legacySession);
-    assert.equal(legacyRead[0].content, "Legacy task");
+    assert.equal(legacyRead[0]!.content, "Legacy task");
 
     // Writing migrates legacy directory to hashed directory
     await writeTodos(
@@ -633,7 +633,7 @@ async function runSuite() {
     );
 
     const migratedRead = await readTodos(legacySession);
-    assert.equal(migratedRead[0].status, "completed");
+    assert.equal(migratedRead[0]!.status, "completed");
 
     console.log(
       "✔ Scenarios 19 & 20: Hashed sessionID directory (zero raw leakage) and auto-migration verified",
