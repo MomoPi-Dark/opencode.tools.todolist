@@ -1,4 +1,4 @@
-# OpenCode Todo List Tool (`opencode.tools.todolist`)
+# OpenCode Todo List Plugin
 
 Hierarchical todo list management tool and real-time TUI progress widget for OpenCode.
 
