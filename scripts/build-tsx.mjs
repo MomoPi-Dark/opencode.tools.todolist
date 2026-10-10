@@ -1,7 +1,33 @@
-import solidPlugin from "@opentui/solid/bun-plugin";
+import { transformAsync } from "@babel/core";
+import { build } from "esbuild";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-const outdir = fileURLToPath(new URL("..", import.meta.url));
+const root = fileURLToPath(new URL("..", import.meta.url));
+const resolve = (p) => fileURLToPath(new URL(p, import.meta.url));
+
+/** Setara dengan @opentui/solid/bun-plugin, tapi untuk esbuild. */
+const solidPlugin = {
+  name: "opentui-solid",
+  setup(b) {
+    b.onLoad({ filter: /\.[jt]sx$/ }, async ({ path }) => {
+      const source = await readFile(path, "utf8");
+      const result = await transformAsync(source, {
+        filename: path,
+        sourceMaps: "inline",
+        presets: [
+          [
+            "babel-preset-solid",
+            { moduleName: "@opentui/solid", generate: "universal" },
+          ],
+          ["@babel/preset-typescript", { isTSX: true, allExtensions: true }],
+        ],
+      });
+      return { contents: result.code, loader: "js" };
+    });
+  },
+};
+
 const builds = [
   { entrypoint: "../src/tool.ts", output: "index.js", plugins: [] },
   {
@@ -12,17 +38,14 @@ const builds = [
 ];
 
 for (const { entrypoint, output, plugins } of builds) {
-  const result = await Bun.build({
-    entrypoints: [fileURLToPath(new URL(entrypoint, import.meta.url))],
-    outdir,
-    naming: { entry: output },
-    target: "bun",
+  await build({
+    entryPoints: [resolve(entrypoint)],
+    outfile: `${root}/${output}`,
+    bundle: true,
+    platform: "node",
     format: "esm",
     packages: "external",
     plugins,
+    logLevel: "info",
   });
-
-  if (!result.success) {
-    throw new Error(result.logs.map((log) => log.message).join("\n"));
-  }
 }

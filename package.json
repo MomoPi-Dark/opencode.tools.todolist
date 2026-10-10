@@ -17,10 +17,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "bun scripts/build-tsx.mjs",
-    "test": "bun test/manage-todo.test.ts && bun test/build-tui.test.mjs",
-    "typecheck": "bun x tsc --noEmit",
-    "check": "bun run typecheck && bun run test && bun run build"
+    "build": "node scripts/build-tsx.mjs",
+    "test": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "check": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs && node scripts/build-tsx.mjs"
   },
   "keywords": [
     "opencode",
@@ -43,6 +43,7 @@
     "@opentui/core": "^0.5.17",
     "@opentui/solid": "^0.5.17",
     "@resvg/resvg-js": "^2.6.2",
+    "esbuild": "^0.28.2",
     "proper-lockfile": "^4.1.2",
     "react": "^19.3.0",
     "solid-js": "^1.9.4",
@@ -51,6 +52,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/proper-lockfile": "^4.1.4",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }

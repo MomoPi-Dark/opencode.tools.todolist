@@ -1,7 +1,7 @@
 import { Plugin } from "@opencode/plugin";
 import { z } from "zod";
 import { consumeTodoHint } from "./hint";
-import { readTodos, updateTodos } from "./store";
+import { readTodos, updateTodos } from "./store/store";
 import {
   type SubTodo,
   type TodoItem,

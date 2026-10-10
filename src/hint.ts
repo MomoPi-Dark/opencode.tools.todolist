@@ -1,5 +1,9 @@
 import { readFileSync, renameSync, writeFileSync } from "node:fs";
-import { getHintMarkerPath, normalizeSessionID, readTodoData } from "./store";
+import {
+  getHintMarkerPath,
+  normalizeSessionID,
+  readTodoData,
+} from "./store/store";
 import type { TodoItem, TodoStatus } from "./todo";
 
 export const DEFAULT_STALE_MS = 30 * 60 * 1000; // 30 minutes

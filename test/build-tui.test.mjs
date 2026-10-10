@@ -8,7 +8,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const manifest = JSON.parse(
   readFileSync(resolve(root, "package.json"), "utf8"),
 );
-const result = spawnSync("bun", ["scripts/build-tsx.mjs"], {
+const result = spawnSync(process.execPath, ["scripts/build-tsx.mjs"], {
   cwd: root,
   encoding: "utf8",
 });

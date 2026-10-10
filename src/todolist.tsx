@@ -26,7 +26,7 @@ import {
   hashSessionID,
   readTodosSync,
   writeTodos,
-} from "./store";
+} from "./store/store";
 import type { TodoStatus } from "./todo";
 
 export {

@@ -26,7 +26,7 @@ const {
   resolveConfigHome,
   resolveHomeDir,
   resolveTodosBaseDir,
-} = await import("../src/store");
+} = await import("../src/store/store");
 
 assert.ok(
   getTodoFilePath("guard_probe").startsWith(sandboxDir),
@@ -34,10 +34,14 @@ assert.ok(
 );
 
 const { getTodoDisplaySummary } = await import("../src/display");
-const { buildTodosFromInput, formatReadOutput, manageTodoListSchema, registerTodoPromptHook } =
-  await import("../src/tool");
+const {
+  buildTodosFromInput,
+  formatReadOutput,
+  manageTodoListSchema,
+  registerTodoPromptHook,
+} = await import("../src/tool");
 const { consumeTodoHint, TODO_HINT } = await import("../src/hint");
-const { readTodoData } = await import("../src/store");
+const { readTodoData } = await import("../src/store/store");
 const { validateAndNormalizeTodos } = await import("../src/todo");
 
 const TEST_SESSION = "test_todolist_session";
@@ -97,7 +101,9 @@ async function runSuite() {
     ];
     const check = validateAndNormalizeTodos(valid);
     assert.equal(check.valid, true);
-    console.log("✔ Scenario 4: Parent in_progress + 1 child in_progress passes");
+    console.log(
+      "✔ Scenario 4: Parent in_progress + 1 child in_progress passes",
+    );
   }
 
   {
@@ -112,7 +118,9 @@ async function runSuite() {
     const check = validateAndNormalizeTodos(invalid);
     assert.equal(check.valid, false);
     assert.match((check as any).error, /Set parent to 'in_progress'/);
-    console.log("✔ Scenario 5: Pending parent with child in_progress is rejected");
+    console.log(
+      "✔ Scenario 5: Pending parent with child in_progress is rejected",
+    );
   }
 
   {
@@ -127,7 +135,9 @@ async function runSuite() {
     const check = validateAndNormalizeTodos(invalid);
     assert.equal(check.valid, false);
     assert.match((check as any).error, /is 'cancelled'/);
-    console.log("✔ Scenario 5b: Cancelled parent with child in_progress is rejected");
+    console.log(
+      "✔ Scenario 5b: Cancelled parent with child in_progress is rejected",
+    );
   }
 
   {
@@ -145,7 +155,9 @@ async function runSuite() {
     const check = validateAndNormalizeTodos(invalid);
     assert.equal(check.valid, false);
     assert.match((check as any).error, /has 2 subtasks 'in_progress'/);
-    console.log("✔ Scenario 6: Two in_progress children in one parent are rejected");
+    console.log(
+      "✔ Scenario 6: Two in_progress children in one parent are rejected",
+    );
   }
 
   {
@@ -154,13 +166,17 @@ async function runSuite() {
     assert.equal(result.length, 0);
     const summary = getTodoDisplaySummary(result);
     assert.equal(summary, null);
-    console.log("✔ Scenario 7: write [] clears store and getTodoDisplaySummary returns null");
+    console.log(
+      "✔ Scenario 7: write [] clears store and getTodoDisplaySummary returns null",
+    );
   }
 
   {
     const output = formatReadOutput([]);
     assert.equal(output, "No todos recorded.");
-    console.log("✔ Scenario 8: formatReadOutput([]) returns 'No todos recorded.'");
+    console.log(
+      "✔ Scenario 8: formatReadOutput([]) returns 'No todos recorded.'",
+    );
   }
 
   {
@@ -175,7 +191,9 @@ async function runSuite() {
     assert.equal(formatted[0].children?.[0].id, "1.1");
     assert.equal(formatted[0].children?.[0].content, "Subtask 1");
     assert.equal(formatted[0].children?.[0].status, "pending");
-    console.log("✔ Scenario 9: Sequential IDs, default pending, and fallback content verified");
+    console.log(
+      "✔ Scenario 9: Sequential IDs, default pending, and fallback content verified",
+    );
   }
 
   {
@@ -200,7 +218,9 @@ async function runSuite() {
     assert.equal(check.length, 1);
     assert.equal(check[0].content, "Recovered Task");
     assert.equal(check[0].status, "pending");
-    console.log("✔ Scenario 11: write archives corrupt file and stores new valid data");
+    console.log(
+      "✔ Scenario 11: write archives corrupt file and stores new valid data",
+    );
   }
 
   {
@@ -220,7 +240,9 @@ async function runSuite() {
     if (check.valid) {
       assert.equal(check.data[0].status, "completed");
     }
-    console.log("✔ Scenario 12: Parent with all completed children automatically completes");
+    console.log(
+      "✔ Scenario 12: Parent with all completed children automatically completes",
+    );
   }
 
   {
@@ -235,7 +257,9 @@ async function runSuite() {
     );
     assert.ok(statSync(p).isDirectory());
     rmSync(p, { recursive: true });
-    console.log("✔ Scenario 13: I/O error (EISDIR) throws cleanly without overwriting");
+    console.log(
+      "✔ Scenario 13: I/O error (EISDIR) throws cleanly without overwriting",
+    );
   }
 
   {
@@ -263,11 +287,15 @@ async function runSuite() {
 
     await writeTodos(session, buildTodosFromInput([{ title: "Baru" }]));
     assert.ok(
-      !readdirSync(sessionDir).some((f) => f.startsWith("todos-1.json.corrupt-")),
+      !readdirSync(sessionDir).some((f) =>
+        f.startsWith("todos-1.json.corrupt-"),
+      ),
       "files that only violate rules must not be marked corrupt",
     );
     assert.equal((await readTodos(session))[0].content, "Baru");
-    console.log("✔ Scenario 14a: Valid JSON violating rules is overwritten cleanly without corruption archive");
+    console.log(
+      "✔ Scenario 14a: Valid JSON violating rules is overwritten cleanly without corruption archive",
+    );
   }
 
   {
@@ -277,7 +305,11 @@ async function runSuite() {
     const p = join(sessionDir, "todos-1.json");
     writeFileSync(
       p,
-      JSON.stringify({ version: 1, updatedAt: "x", todos: { notAnArray: true } }),
+      JSON.stringify({
+        version: 1,
+        updatedAt: "x",
+        todos: { notAnArray: true },
+      }),
     );
     await writeTodos(session, buildTodosFromInput([{ title: "Baru" }]));
 
@@ -288,7 +320,9 @@ async function runSuite() {
 
     const check = await readTodos(session);
     assert.equal(check[0].content, "Baru");
-    console.log("✔ Scenario 14b: Malformed file is archived and replaced with new data");
+    console.log(
+      "✔ Scenario 14b: Malformed file is archived and replaced with new data",
+    );
   }
 
   {
@@ -339,7 +373,9 @@ async function runSuite() {
       rendered.includes("        ↳ note: Prisma schema v2"),
       "Render output must include subtask note with branch arrow ↳",
     );
-    console.log("✔ Scenario 17: Note field integrated across input, model, and tree rendering with branch arrow");
+    console.log(
+      "✔ Scenario 17: Note field integrated across input, model, and tree rendering with branch arrow",
+    );
   }
 
   {
@@ -360,11 +396,18 @@ async function runSuite() {
     const hintActive = consumeTodoHint(activeSession);
     assert.equal(hintActive, TODO_HINT);
     assert.ok(hintActive?.includes("manage_todo_list [read]"));
-    assert.ok(!/\d+\/\d+/.test(hintActive ?? ""), "hint must not contain dynamic counter numbers");
+    assert.ok(
+      !/\d+\/\d+/.test(hintActive ?? ""),
+      "hint must not contain dynamic counter numbers",
+    );
 
     // Scenario 18c: Dedupe -> second turn without state changes returns undefined
     const hintRepeat = consumeTodoHint(activeSession);
-    assert.equal(hintRepeat, undefined, "same state version must not trigger duplicate hints");
+    assert.equal(
+      hintRepeat,
+      undefined,
+      "same state version must not trigger duplicate hints",
+    );
 
     // Scenario 18d: State change -> version bump -> hint triggers once again
     const dataBefore = readTodoData(activeSession);
@@ -422,12 +465,17 @@ async function runSuite() {
     } as any;
 
     await registerTodoPromptHook(fakeContextCtx);
-    assert.ok(typeof contextHookCb === "function", "Context hook must be registered");
+    assert.ok(
+      typeof contextHookCb === "function",
+      "Context hook must be registered",
+    );
 
     const hookSession = "hook_hint_session";
     await writeTodos(
       hookSession,
-      buildTodosFromInput([{ id: "1", title: "Task 1", status: "in_progress" }]),
+      buildTodosFromInput([
+        { id: "1", title: "Task 1", status: "in_progress" },
+      ]),
     );
 
     const contextPayload = {
@@ -436,9 +484,16 @@ async function runSuite() {
       prompt: { text: "User prompt text" },
     };
     await contextHookCb!(contextPayload);
-    assert.equal(contextPayload.prompt.text, "User prompt text", "prompt.text must NOT be touched by context hook");
+    assert.equal(
+      contextPayload.prompt.text,
+      "User prompt text",
+      "prompt.text must NOT be touched by context hook",
+    );
     assert.equal(contextPayload.system.length, 2);
-    assert.deepEqual(contextPayload.system[1], { type: "text", text: TODO_HINT });
+    assert.deepEqual(contextPayload.system[1], {
+      type: "text",
+      text: TODO_HINT,
+    });
 
     // Second request with same version: must not duplicate
     const secondContextPayload = {
@@ -447,7 +502,11 @@ async function runSuite() {
       prompt: { text: "Turn 2" },
     };
     await contextHookCb!(secondContextPayload);
-    assert.equal(secondContextPayload.system.length, 1, "Dedupe must be active in context hook");
+    assert.equal(
+      secondContextPayload.system.length,
+      1,
+      "Dedupe must be active in context hook",
+    );
 
     // Scenario 18h: Fallback path to 'prompt' if host does not support 'context'
     let promptHookCb: ((sp: any) => Promise<void>) | undefined;
@@ -461,12 +520,17 @@ async function runSuite() {
     } as any;
 
     await registerTodoPromptHook(fakeFallbackCtx);
-    assert.ok(typeof promptHookCb === "function", "Fallback prompt hook must register when context fails");
+    assert.ok(
+      typeof promptHookCb === "function",
+      "Fallback prompt hook must register when context fails",
+    );
 
     const fallbackSession = "hook_fallback_session";
     await writeTodos(
       fallbackSession,
-      buildTodosFromInput([{ id: "1", title: "Fallback 1", status: "in_progress" }]),
+      buildTodosFromInput([
+        { id: "1", title: "Fallback 1", status: "in_progress" },
+      ]),
     );
 
     const fallbackPromptPayload = {
@@ -474,7 +538,9 @@ async function runSuite() {
       prompt: { text: "Hello there" },
     };
     await promptHookCb!(fallbackPromptPayload);
-    assert.ok(fallbackPromptPayload.prompt.text.includes(`Hello there\n\n${TODO_HINT}`));
+    assert.ok(
+      fallbackPromptPayload.prompt.text.includes(`Hello there\n\n${TODO_HINT}`),
+    );
 
     // Second turn on fallback: dedupe prevents re-injection
     const secondFallbackPayload = {
@@ -492,7 +558,9 @@ async function runSuite() {
     await promptHookCb!(emptyPayload);
     assert.equal(emptyPayload.prompt.text, "   ");
 
-    console.log("✔ Scenario 18: Ephemeral context injection (zero TUI leak), fallback prompt, and dedupe verified");
+    console.log(
+      "✔ Scenario 18: Ephemeral context injection (zero TUI leak), fallback prompt, and dedupe verified",
+    );
   }
 
   {
@@ -500,7 +568,9 @@ async function runSuite() {
     const secretSession = "ses_ee0a685c9ffer3Sx3vzq5ORWw9";
     await writeTodos(
       secretSession,
-      buildTodosFromInput([{ id: "1", title: "Secret task", status: "pending" }]),
+      buildTodosFromInput([
+        { id: "1", title: "Secret task", status: "pending" },
+      ]),
     );
 
     const hashedName = hashSessionID(secretSession);
@@ -508,11 +578,19 @@ async function runSuite() {
 
     // Ensure raw sessionID directory does NOT exist on disk
     const rawDir = join(sandboxDir, secretSession);
-    assert.equal(existsSync(rawDir), false, "Raw sessionID directory must not exist on disk");
+    assert.equal(
+      existsSync(rawDir),
+      false,
+      "Raw sessionID directory must not exist on disk",
+    );
 
     // Ensure hashed directory exists
     const hashedDir = join(sandboxDir, hashedName);
-    assert.equal(existsSync(hashedDir), true, "Hashed sessionID directory must exist on disk");
+    assert.equal(
+      existsSync(hashedDir),
+      true,
+      "Hashed sessionID directory must exist on disk",
+    );
 
     // Verify data reads back accurately
     const readBack = await readTodos(secretSession);
@@ -538,16 +616,28 @@ async function runSuite() {
     // Writing migrates legacy directory to hashed directory
     await writeTodos(
       legacySession,
-      buildTodosFromInput([{ id: "1", title: "Migrated task", status: "completed" }]),
+      buildTodosFromInput([
+        { id: "1", title: "Migrated task", status: "completed" },
+      ]),
     );
     const legacyHashed = hashSessionID(legacySession);
-    assert.equal(existsSync(legacyDir), false, "Legacy directory must be renamed/migrated");
-    assert.equal(existsSync(join(sandboxDir, legacyHashed)), true, "Hashed migrated directory must exist");
+    assert.equal(
+      existsSync(legacyDir),
+      false,
+      "Legacy directory must be renamed/migrated",
+    );
+    assert.equal(
+      existsSync(join(sandboxDir, legacyHashed)),
+      true,
+      "Hashed migrated directory must exist",
+    );
 
     const migratedRead = await readTodos(legacySession);
     assert.equal(migratedRead[0].status, "completed");
 
-    console.log("✔ Scenarios 19 & 20: Hashed sessionID directory (zero raw leakage) and auto-migration verified");
+    console.log(
+      "✔ Scenarios 19 & 20: Hashed sessionID directory (zero raw leakage) and auto-migration verified",
+    );
   }
 
   {
@@ -556,13 +646,21 @@ async function runSuite() {
       platform: "win32",
       env: { USERPROFILE: "C:\\Users\\Alice" },
     });
-    assert.equal(winHome, "C:\\Users\\Alice", "Windows must prefer USERPROFILE");
+    assert.equal(
+      winHome,
+      "C:\\Users\\Alice",
+      "Windows must prefer USERPROFILE",
+    );
 
     const winLegacy = resolveHomeDir({
       platform: "win32",
       env: { HOMEDRIVE: "D:", HOMEPATH: "\\Users\\Bob" },
     });
-    assert.equal(winLegacy, "D:\\Users\\Bob", "Windows must support HOMEDRIVE+HOMEPATH");
+    assert.equal(
+      winLegacy,
+      "D:\\Users\\Bob",
+      "Windows must support HOMEDRIVE+HOMEPATH",
+    );
 
     const nixHome = resolveHomeDir({
       platform: "linux",
@@ -583,14 +681,19 @@ async function runSuite() {
       "Explicit home override must win",
     );
 
-    console.log("✔ Scenario 21: Home directory resolves per-platform (win32 USERPROFILE/HOMEDRIVE, linux/macOS HOME)");
+    console.log(
+      "✔ Scenario 21: Home directory resolves per-platform (win32 USERPROFILE/HOMEDRIVE, linux/macOS HOME)",
+    );
   }
 
   {
     // Scenario 22: Platform-native config home resolution
     const winCfg = resolveConfigHome({
       platform: "win32",
-      env: { USERPROFILE: "C:\\Users\\Alice", APPDATA: "C:\\Users\\Alice\\AppData\\Roaming" },
+      env: {
+        USERPROFILE: "C:\\Users\\Alice",
+        APPDATA: "C:\\Users\\Alice\\AppData\\Roaming",
+      },
     });
     assert.equal(
       winCfg,
@@ -600,7 +703,10 @@ async function runSuite() {
 
     const winLocal = resolveConfigHome({
       platform: "win32",
-      env: { USERPROFILE: "C:\\Users\\Alice", LOCALAPPDATA: "C:\\Users\\Alice\\AppData\\Local" },
+      env: {
+        USERPROFILE: "C:\\Users\\Alice",
+        LOCALAPPDATA: "C:\\Users\\Alice\\AppData\\Local",
+      },
     });
     assert.equal(
       winLocal,
@@ -638,22 +744,34 @@ async function runSuite() {
       platform: "linux",
       env: { HOME: "/home/alice", XDG_CONFIG_HOME: "/custom/xdg" },
     });
-    assert.equal(xdgCfg, "/custom/xdg", "XDG_CONFIG_HOME must override ~/.config");
+    assert.equal(
+      xdgCfg,
+      "/custom/xdg",
+      "XDG_CONFIG_HOME must override ~/.config",
+    );
 
-    console.log("✔ Scenario 22: Config home resolves per-platform (APPDATA, Application Support, XDG/.config)");
+    console.log(
+      "✔ Scenario 22: Config home resolves per-platform (APPDATA, Application Support, XDG/.config)",
+    );
   }
 
   {
     // Scenario 23: Todo base dir precedence + platform joining
     const explicit = resolveTodosBaseDir({
       platform: "win32",
-      env: { OPENCODE_TODOS_DIR: "C:\\todo\\override", USERPROFILE: "C:\\Users\\Alice" },
+      env: {
+        OPENCODE_TODOS_DIR: "C:\\todo\\override",
+        USERPROFILE: "C:\\Users\\Alice",
+      },
     });
     assert.equal(explicit, "C:\\todo\\override", "OPENCODE_TODOS_DIR must win");
 
     const opencodeDir = resolveTodosBaseDir({
       platform: "win32",
-      env: { OPENCODE_CONFIG_DIR: "C:\\oc-config", USERPROFILE: "C:\\Users\\Alice" },
+      env: {
+        OPENCODE_CONFIG_DIR: "C:\\oc-config",
+        USERPROFILE: "C:\\Users\\Alice",
+      },
     });
     assert.equal(
       opencodeDir,
@@ -663,7 +781,10 @@ async function runSuite() {
 
     const winBase = resolveTodosBaseDir({
       platform: "win32",
-      env: { USERPROFILE: "C:\\Users\\Alice", APPDATA: "C:\\Users\\Alice\\AppData\\Roaming" },
+      env: {
+        USERPROFILE: "C:\\Users\\Alice",
+        APPDATA: "C:\\Users\\Alice\\AppData\\Roaming",
+      },
     });
     assert.equal(
       winBase,
@@ -685,7 +806,11 @@ async function runSuite() {
       platform: "linux",
       env: { HOME: "/home/alice" },
     });
-    assert.equal(linuxBase, "/home/alice/.config/opencode/tmp", "Linux base dir must use ~/.config/opencode/tmp");
+    assert.equal(
+      linuxBase,
+      "/home/alice/.config/opencode/tmp",
+      "Linux base dir must use ~/.config/opencode/tmp",
+    );
 
     // The live runtime must still honor the sandbox override from setup.
     assert.equal(
@@ -694,7 +819,9 @@ async function runSuite() {
       "Live getTodosDirectory must keep honoring OPENCODE_TODOS_DIR",
     );
 
-    console.log("✔ Scenario 23: Todo base dir precedence (override → OPENCODE_CONFIG_DIR → platform native) verified");
+    console.log(
+      "✔ Scenario 23: Todo base dir precedence (override → OPENCODE_CONFIG_DIR → platform native) verified",
+    );
   }
 
   cleanupSandbox();
