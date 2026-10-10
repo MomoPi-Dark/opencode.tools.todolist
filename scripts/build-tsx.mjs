@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const outdir = fileURLToPath(new URL("../dist", import.meta.url));
 const builds = [
-  { entrypoint: "../src/tool.ts", output: "server.js", plugins: [] },
+  { entrypoint: "../src/tool.ts", output: "index.js", plugins: [] },
   {
     entrypoint: "../src/todolist.tsx",
     output: "tui.js",
