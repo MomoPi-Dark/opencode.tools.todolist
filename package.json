@@ -6,7 +6,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./index.js",
+  "main": "index.js",
   "exports": {
     ".": "./index.js",
     "./tui": "./tui.js"
