@@ -27,9 +27,6 @@ Mounts above the session composer to track task execution in real-time.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-- Click `› Todos` to expand/collapse.
-- Click `✕` to clear all todos.
-
 ---
 
 ## Tool: `manage_todo_list`
