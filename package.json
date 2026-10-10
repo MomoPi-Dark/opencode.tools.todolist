@@ -6,14 +6,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "index.js",
+  "main": "./src/tool.ts",
   "exports": {
-    ".": "./index.js",
-    "./tui": "./tui.js"
+    ".": "./src/tool.ts",
+    "./tui": "./src/todolist.tsx"
   },
   "files": [
-    "index.js",
-    "tui.js"
+    "src/**/*"
   ],
   "scripts": {
     "build:plugin": "node scripts/build-tsx.mjs",
