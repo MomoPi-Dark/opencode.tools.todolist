@@ -16,7 +16,7 @@
     "tui.js"
   ],
   "scripts": {
-    "build": "node scripts/build-tsx.mjs",
+    "build:plugin": "node scripts/build-tsx.mjs",
     "test": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs",
     "typecheck": "tsc --noEmit",
     "check": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs && node scripts/build-tsx.mjs"
