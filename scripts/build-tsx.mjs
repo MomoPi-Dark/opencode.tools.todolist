@@ -1,7 +1,7 @@
 import solidPlugin from "@opentui/solid/bun-plugin";
 import { fileURLToPath } from "node:url";
 
-const outdir = fileURLToPath(new URL("../dist", import.meta.url));
+const outdir = fileURLToPath(new URL("..", import.meta.url));
 const builds = [
   { entrypoint: "../src/tool.ts", output: "index.js", plugins: [] },
   {

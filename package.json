@@ -3,13 +3,8 @@
   "version": "1.1.0",
   "description": "OpenCode TUI sidebar plugin for hierarchical todo list tracking.",
   "type": "module",
-  "main": "./dist/index.js",
   "publishConfig": {
     "access": "public"
-  },
-  "exports": {
-    ".": "./dist/index.js",
-    "./tui": "./dist/tui.js"
   },
   "files": [
     "dist",
@@ -18,7 +13,6 @@
   ],
   "scripts": {
     "build": "bun scripts/build-tsx.mjs",
-    "prepare": "bun run build",
     "test": "bun test/manage-todo.test.ts && bun test/build-tui.test.mjs",
     "typecheck": "bun x tsc --noEmit",
     "check": "bun run typecheck && bun run test && bun run build"
