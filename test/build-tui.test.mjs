@@ -20,6 +20,7 @@ const serverPath = resolve(root, "dist/index.js");
 assert.equal(manifest.main, "./dist/index.js");
 assert.equal(manifest.exports["."], "./dist/index.js");
 assert.equal(manifest.exports["./tui"], "./dist/tui.js");
+assert.equal(manifest.scripts?.prepare, undefined);
 const server = await import(
   `${pathToFileURL(serverPath).href}?test=${Date.now()}`
 );
