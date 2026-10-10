@@ -12,9 +12,8 @@
     "./tui": "./tui.js"
   },
   "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
+    "index.js",
+    "tui.js"
   ],
   "scripts": {
     "build": "node scripts/build-tsx.mjs",
