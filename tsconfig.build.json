@@ -3,6 +3,7 @@
     "compilerOptions": {
         "declaration": true,
         "sourceMap": true,
+        "jsx": "preserve",
         "rootDir": "src",
         "outDir": "dist"
     },

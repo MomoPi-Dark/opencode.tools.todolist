@@ -7,8 +7,8 @@
     "access": "public"
   },
   "exports": {
-    ".": "./dist/index.js",
-    "./tui": "./dist/tui.js"
+    ".": "./index.js",
+    "./tui": "./tui.js"
   },
   "files": [
     "dist",
@@ -19,7 +19,7 @@
     "build": "tsc -p tsconfig.build.json && node scripts/build-tui.mjs",
     "test": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs",
     "typecheck": "tsc --noEmit",
-    "check": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs && node scripts/build-tsx.mjs"
+    "check": "pnpm run typecheck && pnpm run test"
   },
   "keywords": [
     "opencode",
