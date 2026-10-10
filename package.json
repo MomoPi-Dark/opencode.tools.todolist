@@ -9,6 +9,7 @@
   "main": "index.js",
   "exports": {
     ".": "./index.js",
+    "./server": "./index.js",
     "./tui": "./tui.js"
   },
   "files": [
