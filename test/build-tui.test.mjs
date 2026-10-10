@@ -17,9 +17,9 @@ assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
 
 const bundlePath = resolve(root, "dist/tui.js");
 const serverPath = resolve(root, "dist/index.js");
-assert.equal(manifest.main, "./dist/index.js");
-assert.equal(manifest.exports["."], "./dist/index.js");
-assert.equal(manifest.exports["./tui"], "./dist/tui.js");
+assert.equal(manifest.main, "../index.js");
+assert.equal(manifest.exports["."], "../index.js");
+assert.equal(manifest.exports["./tui"], "../tui.js");
 assert.equal(manifest.scripts?.prepare, undefined);
 const server = await import(
   `${pathToFileURL(serverPath).href}?test=${Date.now()}`
