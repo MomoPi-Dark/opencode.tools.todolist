@@ -8,3 +8,5 @@ coverage/
 !.env.example
 bun*
 pnpm-*
+./index.js
+./tui.js

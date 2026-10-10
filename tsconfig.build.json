@@ -5,7 +5,7 @@
         "sourceMap": true,
         "jsx": "preserve",
         "rootDir": "src",
-        "outDir": "dist"
+        "outDir": "."
     },
     "include": [
         "src/**/*.ts",

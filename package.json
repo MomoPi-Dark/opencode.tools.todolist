@@ -11,15 +11,16 @@
     "./tui": "./tui.js"
   },
   "files": [
-    "dist",
+    "*.js",
+    "icons/*.js",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && node scripts/build-tui.mjs",
+    "build": "tsc -p tsconfig.build.json && node scripts/build.mjs",
     "test": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm run typecheck && pnpm run test"
+    "check": "bun run typecheck && bun run test"
   },
   "keywords": [
     "opencode",

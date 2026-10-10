@@ -8,19 +8,27 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const manifest = JSON.parse(
   readFileSync(resolve(root, "package.json"), "utf8"),
 );
-const result = spawnSync(process.execPath, ["scripts/build-tsx.mjs"], {
+const buildConfig = JSON.parse(
+  readFileSync(resolve(root, "tsconfig.build.json"), "utf8"),
+);
+assert.equal(buildConfig.compilerOptions.jsx, "preserve");
+assert.equal(buildConfig.compilerOptions.outDir, ".");
+
+const result = spawnSync("pnpm", ["run", "build"], {
   cwd: root,
   encoding: "utf8",
 });
 
 assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
 
-const bundlePath = resolve(root, "dist/tui.js");
-const serverPath = resolve(root, "dist/index.js");
+const bundlePath = resolve(root, "tui.js");
+const serverPath = resolve(root, "index.js");
 assert.equal(manifest.main, undefined);
-assert.equal(manifest.exports["."], "./dist/index.js");
-assert.equal(manifest.exports["./tui"], "./dist/tui.js");
+assert.equal(manifest.exports["."], "./index.js");
+assert.equal(manifest.exports["./tui"], "./tui.js");
 assert.equal(manifest.scripts?.prepare, undefined);
+assert.ok(manifest.files.includes("*.js"));
+assert.ok(manifest.files.includes("icons/*.js"));
 const server = await import(
   `${pathToFileURL(serverPath).href}?test=${Date.now()}`
 );
