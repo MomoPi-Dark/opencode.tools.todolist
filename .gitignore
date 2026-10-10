@@ -1,4 +1,5 @@
 node_modules/
+.build/
 dist/
 coverage/
 *.log
@@ -8,5 +9,5 @@ coverage/
 !.env.example
 bun*
 pnpm-*
-./index.js
-./tui.js
+index.js
+tui.js

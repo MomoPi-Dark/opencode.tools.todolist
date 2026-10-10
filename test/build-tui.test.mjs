@@ -14,7 +14,8 @@ const buildConfig = JSON.parse(
 assert.equal(buildConfig.compilerOptions.jsx, "preserve");
 assert.equal(buildConfig.compilerOptions.outDir, ".");
 
-const result = spawnSync("pnpm", ["run", "build"], {
+const packageManager = process.env.npm_execpath ?? "pnpm";
+const result = spawnSync(packageManager, ["run", "build"], {
   cwd: root,
   encoding: "utf8",
 });
