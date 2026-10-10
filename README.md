@@ -7,6 +7,7 @@ Hierarchical todo list management tool and real-time TUI progress widget for Ope
 Mounts above the session composer to track task execution in real-time.
 
 **Collapsed (Default):**
+
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │ › Todos (2/4)   ⠋ 2.2 API endpoints                       ✕ │
@@ -14,6 +15,7 @@ Mounts above the session composer to track task execution in real-time.
 ```
 
 **Expanded:**
+
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │ ▾ Todos (2/4)                                             ✕ │
@@ -25,8 +27,8 @@ Mounts above the session composer to track task execution in real-time.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-* Click `› Todos` to expand/collapse.
-* Click `✕` to clear all todos.
+- Click `› Todos` to expand/collapse.
+- Click `✕` to clear all todos.
 
 ---
 
@@ -43,41 +45,41 @@ Mounts above the session composer to track task execution in real-time.
 
 Input schema for main tasks accepted in `operation: "write"`:
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `id` | `string` | Auto (`"1"`, `"2"`, ...) | Task identifier. Auto-assigned sequentially if omitted. |
-| `title` | `string` | Optional | Task title (used as fallback for `content`). |
-| `content` | `string` | `"Task <id>"` | Task summary shown in the TUI list. |
-| `note` | `string` | Optional | Technical context (rendered with `↳` below the task). |
-| `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | `"pending"` | Current task status. |
-| `priority` | `"high" \| "medium" \| "low"` | Optional | Task priority level. |
-| `children` | `Array<SubTodoInput>` | Optional | Nested subtasks list. |
+| Property   | Type                                                       | Default                  | Description                                             |
+| ---------- | ---------------------------------------------------------- | ------------------------ | ------------------------------------------------------- |
+| `id`       | `string`                                                   | Auto (`"1"`, `"2"`, ...) | Task identifier. Auto-assigned sequentially if omitted. |
+| `title`    | `string`                                                   | Optional                 | Task title (used as fallback for `content`).            |
+| `content`  | `string`                                                   | `"Task <id>"`            | Task summary shown in the TUI list.                     |
+| `note`     | `string`                                                   | Optional                 | Technical context (rendered with `↳` below the task).   |
+| `status`   | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | `"pending"`              | Current task status.                                    |
+| `priority` | `"high" \| "medium" \| "low"`                              | Optional                 | Task priority level.                                    |
+| `children` | `Array<SubTodoInput>`                                      | Optional                 | Nested subtasks list.                                   |
 
 #### 2. `SubTodoInput` (Subtask Input)
 
 Input schema for nested subtasks inside `children`:
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `id` | `string` | Auto (`"<parentId>.1"`, ...) | Subtask identifier. Auto-assigned if omitted. |
-| `title` | `string` | Optional | Subtask title (used as fallback for `content`). |
-| `content` | `string` | `"Subtask <index>"` | Subtask summary shown in the TUI list. |
-| `note` | `string` | Optional | Technical context (rendered with `↳` below the subtask). |
-| `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | `"pending"` | Current subtask status. |
-| `priority` | `"high" \| "medium" \| "low"` | Optional | Subtask priority level. |
+| Property   | Type                                                       | Default                      | Description                                              |
+| ---------- | ---------------------------------------------------------- | ---------------------------- | -------------------------------------------------------- |
+| `id`       | `string`                                                   | Auto (`"<parentId>.1"`, ...) | Subtask identifier. Auto-assigned if omitted.            |
+| `title`    | `string`                                                   | Optional                     | Subtask title (used as fallback for `content`).          |
+| `content`  | `string`                                                   | `"Subtask <index>"`          | Subtask summary shown in the TUI list.                   |
+| `note`     | `string`                                                   | Optional                     | Technical context (rendered with `↳` below the subtask). |
+| `status`   | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | `"pending"`                  | Current subtask status.                                  |
+| `priority` | `"high" \| "medium" \| "low"`                              | Optional                     | Subtask priority level.                                  |
 
 #### 3. `TodoItem` (Stored / Output Schema)
 
 Normalized schema stored in disk and returned in `manageTodoListOutputSchema` (`{ todos: TodoItem[] }`):
 
-| Property | Type | Description |
-|---|---|---|
-| `id` | `string` | Unique task identifier (e.g. `"1"`). |
-| `content` | `string` | Normalized task description. |
-| `note` | `string` | Optional technical notes rendered below the task on `read`. |
-| `status` | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | Normalized status. |
-| `priority` | `"high" \| "medium" \| "low"` | Optional priority. |
-| `children` | `Array<SubTodo>` | Optional list of normalized subtasks (`id`, `content`, optional `note`, `status`, optional `priority`). |
+| Property   | Type                                                       | Description                                                                                             |
+| ---------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `id`       | `string`                                                   | Unique task identifier (e.g. `"1"`).                                                                    |
+| `content`  | `string`                                                   | Normalized task description.                                                                            |
+| `note`     | `string`                                                   | Optional technical notes rendered below the task on `read`.                                             |
+| `status`   | `"pending" \| "in_progress" \| "completed" \| "cancelled"` | Normalized status.                                                                                      |
+| `priority` | `"high" \| "medium" \| "low"`                              | Optional priority.                                                                                      |
+| `children` | `Array<SubTodo>`                                           | Optional list of normalized subtasks (`id`, `content`, optional `note`, `status`, optional `priority`). |
 
 ### Rules
 
@@ -92,6 +94,7 @@ Normalized schema stored in disk and returned in `manageTodoListOutputSchema` (`
 ### Read Todos
 
 **Request:**
+
 ```json
 {
   "operation": "read"
@@ -99,6 +102,7 @@ Normalized schema stored in disk and returned in `manageTodoListOutputSchema` (`
 ```
 
 **Output:**
+
 ```text
 [x] 1. Design architecture
 [~] 2. Implement backend (1/2)
@@ -112,6 +116,7 @@ Normalized schema stored in disk and returned in `manageTodoListOutputSchema` (`
 ### Write / Update Todos
 
 **Request:**
+
 ```json
 {
   "operation": "write",
@@ -129,7 +134,12 @@ Normalized schema stored in disk and returned in `manageTodoListOutputSchema` (`
       "note": "Ensure strict input validation",
       "children": [
         { "id": "2.1", "content": "Database schema", "status": "completed" },
-        { "id": "2.2", "content": "API endpoints", "status": "in_progress", "note": "Return 401 when unauthenticated" }
+        {
+          "id": "2.2",
+          "content": "API endpoints",
+          "status": "in_progress",
+          "note": "Return 401 when unauthenticated"
+        }
       ]
     },
     {
@@ -142,6 +152,7 @@ Normalized schema stored in disk and returned in `manageTodoListOutputSchema` (`
 ```
 
 **Output:**
+
 ```text
 Todos (2/4) updated successfully.
 ```
@@ -149,6 +160,7 @@ Todos (2/4) updated successfully.
 ### Clear Todos
 
 **Request:**
+
 ```json
 {
   "operation": "write",
@@ -157,6 +169,7 @@ Todos (2/4) updated successfully.
 ```
 
 **Output:**
+
 ```text
 Cleared all todos.
 ```
@@ -188,11 +201,11 @@ The plugin injects a lightweight hint into the prompt so the model stays anchore
 
 Todo files are stored under a platform-native base directory with no configuration required:
 
-| Platform | Base directory | Resolved example |
-|---|---|---|
-| **Windows** | `%APPDATA%\opencode\tmp` | `C:\Users\Alice\AppData\Roaming\opencode\tmp` |
-| **macOS** | `~/Library/Application Support/opencode/tmp` | `/Users/alice/Library/Application Support/opencode/tmp` |
-| **Linux / BSD** | `$XDG_CONFIG_HOME/opencode/tmp` (fallback `~/.config/opencode/tmp`) | `/home/alice/.config/opencode/tmp` |
+| Platform        | Base directory                                                      | Resolved example                                        |
+| --------------- | ------------------------------------------------------------------- | ------------------------------------------------------- |
+| **Windows**     | `%APPDATA%\opencode\tmp`                                            | `C:\Users\Alice\AppData\Roaming\opencode\tmp`           |
+| **macOS**       | `~/Library/Application Support/opencode/tmp`                        | `/Users/alice/Library/Application Support/opencode/tmp` |
+| **Linux / BSD** | `$XDG_CONFIG_HOME/opencode/tmp` (fallback `~/.config/opencode/tmp`) | `/home/alice/.config/opencode/tmp`                      |
 
 Home directory resolution also adapts per platform:
 
@@ -212,7 +225,7 @@ Because directory names are hashed (`s_<32-hex>`), the raw `sessionID` never app
 ## Installation
 
 ```bash
-git clone https://github.com/MomoPi-Dark/opencode.tools.todolist.git ~/.config/opencode/plugins/opencode.tools.todolist
+git clone https://github.com/MomoPi-Dark/opencode-todolist.git ~/.config/opencode/plugins/opencode.tools.todolist
 cd ~/.config/opencode/plugins/opencode.tools.todolist
 bun install
 ```
