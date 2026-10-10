@@ -8,7 +8,7 @@
   },
   "main": "./src/tool.ts",
   "exports": {
-    ".": "./src/tool.ts",
+    "./server": "./src/tool.ts",
     "./tui": "./src/todolist.tsx"
   },
   "files": [
