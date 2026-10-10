@@ -3,12 +3,12 @@
   "version": "1.1.0",
   "description": "OpenCode TUI sidebar plugin for hierarchical todo list tracking.",
   "type": "module",
-  "main": "./dist/server.js",
+  "main": "./dist/index.js",
   "publishConfig": {
     "access": "public"
   },
   "exports": {
-    ".": "./dist/server.js",
+    ".": "./dist/index.js",
     "./tui": "./dist/tui.js"
   },
   "files": [

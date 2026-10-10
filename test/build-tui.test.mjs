@@ -16,9 +16,9 @@ const result = spawnSync("bun", ["scripts/build-tsx.mjs"], {
 assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
 
 const bundlePath = resolve(root, "dist/tui.js");
-const serverPath = resolve(root, "dist/server.js");
-assert.equal(manifest.main, "./dist/server.js");
-assert.equal(manifest.exports["."], "./dist/server.js");
+const serverPath = resolve(root, "dist/index.js");
+assert.equal(manifest.main, "./dist/index.js");
+assert.equal(manifest.exports["."], "./dist/index.js");
 assert.equal(manifest.exports["./tui"], "./dist/tui.js");
 const server = await import(
   `${pathToFileURL(serverPath).href}?test=${Date.now()}`
