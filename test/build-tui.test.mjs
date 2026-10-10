@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const manifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
-const result = spawnSync("bun", ["scripts/build-tui.mjs"], {
+const manifest = JSON.parse(
+  readFileSync(resolve(root, "package.json"), "utf8"),
+);
+const result = spawnSync("bun", ["scripts/build-tsx.mjs"], {
   cwd: root,
   encoding: "utf8",
 });
@@ -18,12 +20,16 @@ const serverPath = resolve(root, "dist/server.js");
 assert.equal(manifest.main, "./dist/server.js");
 assert.equal(manifest.exports["."], "./dist/server.js");
 assert.equal(manifest.exports["./tui"], "./dist/tui.js");
-const server = await import(`${pathToFileURL(serverPath).href}?test=${Date.now()}`);
+const server = await import(
+  `${pathToFileURL(serverPath).href}?test=${Date.now()}`
+);
 assert.equal(server.default.id, "opencode.tools.modern.todos");
 
 const bundle = readFileSync(bundlePath, "utf8");
 assert.doesNotMatch(bundle, /from\s+["']react(?:\/[^"']*)?["']/);
 
-const plugin = await import(`${pathToFileURL(bundlePath).href}?test=${Date.now()}`);
+const plugin = await import(
+  `${pathToFileURL(bundlePath).href}?test=${Date.now()}`
+);
 assert.equal(plugin.default.id, "opencode.tools.modern.todos.tui");
 assert.equal(typeof plugin.default.setup, "function");
