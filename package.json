@@ -20,7 +20,7 @@
     "test": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs",
     "typecheck": "tsc --noEmit",
     "check": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs && node scripts/build-tsx.mjs",
-    "prepare": "tsc -p tsconfig.build.json && node scripts/build-tui.mjs"
+    "prepare": "tsc -p tsconfig.build.json && node scripts/build-tsx.mjs"
   },
   "keywords": [
     "opencode",
