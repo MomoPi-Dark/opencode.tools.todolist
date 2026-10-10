@@ -39,7 +39,7 @@ const {
   formatReadOutput,
   manageTodoListSchema,
   registerTodoPromptHook,
-} = await import("../src/tool");
+} = await import("../src");
 const { consumeTodoHint, TODO_HINT } = await import("../src/hint");
 const { readTodoData } = await import("../src/store/store");
 const { validateAndNormalizeTodos } = await import("../src/todo");
