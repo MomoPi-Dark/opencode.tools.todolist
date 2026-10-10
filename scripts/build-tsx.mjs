@@ -9,11 +9,6 @@ const builds = [
     output: "tui.js",
     plugins: [solidPlugin],
   },
-  {
-    entrypoint: "../src/icons/convert.tsx",
-    output: "icons/convert.js",
-    plugins: [],
-  },
 ];
 
 for (const { entrypoint, output, plugins } of builds) {
