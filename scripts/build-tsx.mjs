@@ -3,7 +3,7 @@ import { build } from "esbuild";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
+const root = fileURLToPath(new URL("../dist", import.meta.url));
 const resolve = (p) => fileURLToPath(new URL(p, import.meta.url));
 
 /** Setara dengan @opentui/solid/bun-plugin, tapi untuk esbuild. */
@@ -29,7 +29,7 @@ const solidPlugin = {
 };
 
 const builds = [
-  { entrypoint: "../src/tool.ts", output: "index.js", plugins: [] },
+  { entrypoint: "../src/index.ts", output: "index.js", plugins: [] },
   {
     entrypoint: "../src/todolist.tsx",
     output: "tui.js",

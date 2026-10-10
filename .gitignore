@@ -7,5 +7,3 @@ coverage/
 .env.*
 !.env.example
 bun*
-index.js
-tui.js
