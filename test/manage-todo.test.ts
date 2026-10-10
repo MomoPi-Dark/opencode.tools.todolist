@@ -339,10 +339,20 @@ async function runSuite() {
     );
     assert.match(
       tuiSource,
-      /<For each=\{data\(\)\.items\}>[\s\S]*?<box flexDirection="row" height=\{1\}>[\s\S]*?<\/box>\s*\)\}\s*<\/For>/,
-      "todo rows must use a fixed-height row container to prevent overlap",
+      /<Show when=\{!isCollapsed\(\)\}>[\s\S]*?<TodoList[\s\S]*?\/>\s*<\/box>\s*<\/Show>/,
+      "the expanded panel must delegate rows to TodoList",
     );
-    console.log("✔ Scenario 16: TUI rows have isolated layout row structure");
+    assert.match(
+      tuiSource,
+      /<scrollbox[\s\S]*?height=\{Math\.min\(props\.rows\.length, TODO_PANEL_MAX_ROWS\)\}/,
+      "TodoList must bound its height and stay scrollable instead of hiding rows",
+    );
+    assert.doesNotMatch(
+      tuiSource,
+      /maxHeight=\{8\}[\s\S]*?overflow="hidden"/,
+      "the panel must not silently clip rows again",
+    );
+    console.log("✔ Scenario 16: TUI rows delegate to a bounded scrollbox");
   }
 
   {

@@ -1,4 +1,5 @@
 import { Plugin } from "@opencode/plugin/tui";
+import type { ColorInput, ScrollBoxRenderable } from "@opentui/core";
 import { mkdirSync, watch } from "node:fs";
 import {
   createEffect,
@@ -38,6 +39,179 @@ export {
 };
 
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+/**
+ * Maximum number of todo rows the panel shows before it starts scrolling.
+ * Keeping the panel compact protects the composer; scrolling guarantees no
+ * row is ever silently dropped.
+ */
+export const TODO_PANEL_MAX_ROWS = 8;
+
+export interface TodoListRow {
+  id: string;
+  content: string;
+  icon: string;
+  iconColor: ColorInput;
+  textColor: ColorInput;
+  depth: number;
+  status: TodoStatus;
+}
+
+/**
+ * Rendered width of a row: the indentation, the icon cell and the title.
+ *
+ * Rows must be sized explicitly, otherwise the scroll content never grows
+ * wider than the viewport and horizontal scrolling has nothing to move.
+ */
+export function rowWidth(row: { content: string; depth: number }): number {
+  const indent = row.depth > 0 ? 2 : 0;
+  // icon glyph + trailing space, then the title.
+  return indent + 2 + 1 + [...row.content].length;
+}
+
+export interface FollowScrollInput {
+  currentTop: number;
+  activeIndex: number;
+  rowCount: number;
+  viewportHeight: number;
+}
+
+/**
+ * Scroll offset needed to reveal the active row, or `undefined` when nothing
+ * should move (no active row, already visible, or the list fits).
+ *
+ * Kept pure so the follow behaviour is testable without a live renderer.
+ */
+export function nextFollowScrollTop(input: FollowScrollInput): number | undefined {
+  const { currentTop, activeIndex, rowCount, viewportHeight } = input;
+  if (activeIndex < 0) return undefined;
+
+  const viewport = Math.max(1, viewportHeight);
+  const maxTop = Math.max(0, rowCount - viewport);
+  if (maxTop === 0) return undefined;
+
+  const activeBottom = activeIndex + 1;
+  const visibleTop = currentTop;
+  const visibleBottom = currentTop + viewport;
+
+  if (activeIndex >= visibleTop && activeBottom <= visibleBottom) {
+    return undefined;
+  }
+
+  const targetTop =
+    activeIndex >= visibleBottom ? activeBottom - viewport : activeIndex;
+  return Math.min(Math.max(0, targetTop), maxTop);
+}
+
+/**
+ * Follow the most advanced active row: the last `in_progress` entry is the
+ * task currently being executed.
+ */
+export function findActiveRowIndex(rows: { status: TodoStatus }[]): number {
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    if (rows[index].status === "in_progress") return index;
+  }
+  return -1;
+}
+
+/**
+ * Presentational, context-free todo list.
+ *
+ * The panel is deliberately chrome-free: no indicator row, and the horizontal
+ * scrollbar stays hidden. Long titles never wrap (that would break the
+ * one-line-per-row layout) — they are reached by scrolling left/right, and the
+ * vertical list scrolls when it exceeds `TODO_PANEL_MAX_ROWS`. When a row is
+ * `in_progress` the panel follows it so the active task is never out of sight.
+ */
+export function TodoList(props: {
+  rows: TodoListRow[];
+  scrollbarColor?: ColorInput;
+  ref?: (el: ScrollBoxRenderable) => void;
+}) {
+  const rowId = (id: string) => `todo-row-${id}`;
+  const [scrollBox, setScrollBox] = createSignal<ScrollBoxRenderable>();
+
+  const followActiveRow = (box: ScrollBoxRenderable) => {
+    if (box.isDestroyed) return;
+    const target = nextFollowScrollTop({
+      currentTop: box.scrollTop,
+      activeIndex: findActiveRowIndex(props.rows),
+      rowCount: props.rows.length,
+      viewportHeight: box.viewport.height,
+    });
+    if (target === undefined) return;
+    box.scrollTo(target);
+  };
+
+  const attach = (box: ScrollBoxRenderable) => {
+    setScrollBox(box);
+    // `scrollX` is a constructor-only option: the JSX runtime assigns props
+    // instead of constructing with them, so it never takes effect. Without it
+    // OpenTUI locks the content to `maxWidth: "100%"`, the content can never
+    // grow wider than the viewport, and horizontal scrolling does nothing.
+    // Lifting that cap is what actually enables left/right scrolling.
+    box.content.maxWidth = undefined;
+    // Chain, never clobber: OpenTUI installs its own `content.onSizeChange`
+    // that keeps the scrollbars in sync. Overwriting it left `scrollSize`
+    // stale and produced a phantom horizontal scrollbar.
+    const internalOnSizeChange = box.content.onSizeChange;
+    box.content.onSizeChange = () => {
+      internalOnSizeChange?.call(box.content);
+      followActiveRow(box);
+    };
+    props.ref?.(box);
+  };
+
+  // Status-only changes (e.g. a subtask flipping to `in_progress`) keep the
+  // content size identical, so re-follow whenever the row set changes.
+  createEffect(() => {
+    void props.rows.map((row) => `${row.id}:${row.status}`).join("|");
+    const box = scrollBox();
+    if (box) followActiveRow(box);
+  });
+
+  const scrollbarOptions = () =>
+    props.scrollbarColor
+      ? {
+          trackOptions: {
+            backgroundColor: props.scrollbarColor,
+            foregroundColor: props.scrollbarColor,
+          },
+        }
+      : undefined;
+
+  return (
+    <scrollbox
+      ref={(el: ScrollBoxRenderable) => attach(el)}
+      width="100%"
+      height={Math.min(props.rows.length, TODO_PANEL_MAX_ROWS)}
+      verticalScrollbarOptions={scrollbarOptions()}
+      horizontalScrollbarOptions={{ visible: false }}
+    >
+      <box flexDirection="column" flexShrink={0}>
+        <For each={props.rows}>
+          {(row) => (
+            <box
+              id={rowId(row.id)}
+              flexDirection="row"
+              height={1}
+              flexShrink={0}
+              width={rowWidth(row)}
+            >
+              <text wrapMode="none">
+                <Show when={row.depth > 0}>
+                  <span>{"  "}</span>
+                </Show>
+                <span style={{ fg: row.iconColor }}>{row.icon} </span>
+                <span style={{ fg: row.textColor }}>{row.content}</span>
+              </text>
+            </box>
+          )}
+        </For>
+      </box>
+    </scrollbox>
+  );
+}
 
 function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
   const [refresh, setRefresh] = createSignal(0);
@@ -336,29 +510,19 @@ function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
           </box>
 
           <Show when={!isCollapsed()}>
-            <box
-              flexDirection="column"
-              paddingTop={1}
-              maxHeight={8}
-              overflow="hidden"
-            >
-              <For each={data().items}>
-                {(item) => (
-                  <box flexDirection="row" height={1}>
-                    <text>
-                      <Show when={item.depth > 0}>
-                        <span>{"  "}</span>
-                      </Show>
-                      <span style={{ fg: getStatusColor(item.status) }}>
-                        {getItemIcon(item.status, item.icon)}{" "}
-                      </span>
-                      <span style={{ fg: getTextColor(item.status) }}>
-                        {item.content}
-                      </span>
-                    </text>
-                  </box>
-                )}
-              </For>
+            <box flexDirection="column" paddingTop={1}>
+              <TodoList
+                rows={data().items.map((item) => ({
+                  id: item.id,
+                  content: item.content,
+                  icon: getItemIcon(item.status, item.icon),
+                  iconColor: getStatusColor(item.status),
+                  textColor: getTextColor(item.status),
+                  depth: item.depth,
+                  status: item.status,
+                }))}
+                scrollbarColor={getBorderColor()}
+              />
             </box>
           </Show>
         </box>

@@ -41,8 +41,8 @@ assert.equal(
 );
 assert.ok(!parsed.body.includes("---"), "body must not leak frontmatter");
 
-const quoted = parseSkillMarkdown('---\nname: "todos"\n---\nbody');
-assert.equal(quoted.name, "todos", "surrounding quotes must be stripped");
+const quoted = parseSkillMarkdown('---\nname: "todolist"\n---\nbody');
+assert.equal(quoted.name, "todolist", "surrounding quotes must be stripped");
 
 const noFrontmatter = parseSkillMarkdown("# Just markdown");
 assert.equal(noFrontmatter.name, undefined, "missing frontmatter has no name");
@@ -56,7 +56,9 @@ const blankValue = parseSkillMarkdown("---\nname:\ndescription: kept\n---\nx");
 assert.equal(blankValue.name, undefined, "empty frontmatter value is ignored");
 assert.equal(blankValue.description, "kept", "non-empty sibling is kept");
 
-console.log("✔ parseSkillMarkdown: frontmatter, quotes, and no-frontmatter cases");
+console.log(
+  "✔ parseSkillMarkdown: frontmatter, quotes, and no-frontmatter cases",
+);
 
 // ---------------------------------------------------------------------------
 // parseSkillFile
@@ -67,11 +69,11 @@ const sandbox = mkdtempSync(join(tmpdir(), "opencode-skill-test-"));
 try {
   const flatDir = join(sandbox, "flat");
   mkdirSync(flatDir, { recursive: true });
-  writeFileSync(join(flatDir, "todos.md"), rich);
+  writeFileSync(join(flatDir, "todolist.md"), rich);
 
   const bundledDir = join(sandbox, "bundled");
-  mkdirSync(join(bundledDir, "todos"), { recursive: true });
-  writeFileSync(join(bundledDir, "todos", "SKILL.md"), rich);
+  mkdirSync(join(bundledDir, "todolist"), { recursive: true });
+  writeFileSync(join(bundledDir, "todolist", "SKILL.md"), rich);
 
   const emptyDir = join(sandbox, "empty");
   mkdirSync(emptyDir, { recursive: true });
@@ -82,7 +84,7 @@ try {
   writeFileSync(join(orphanDir, "loose.txt"), "not markdown");
 
   assert.equal(
-    parseSkillFile(join(flatDir, "todos.md"))?.name,
+    parseSkillFile(join(flatDir, "todolist.md"))?.name,
     "todolist",
     "parseSkillFile reads an existing file",
   );
@@ -109,9 +111,9 @@ try {
       body: flat[0].content,
     },
     {
-      id: "todos",
+      id: "todolist",
       name: "todolist",
-      path: "todos.md",
+      path: "todolist.md",
       hasDescription: true,
       body: "# Todolist\n\nBody line.",
     },
@@ -120,14 +122,26 @@ try {
 
   const bundled = readSkills(bundledDir);
   assert.equal(bundled.length, 1, "directory layout must yield one skill");
-  assert.equal(bundled[0].id, "todos", "directory id comes from folder name");
-  assert.equal(bundled[0].name, "todolist", "directory name comes from frontmatter");
+  assert.equal(
+    bundled[0].id,
+    "todolist",
+    "directory id comes from folder name",
+  );
+  assert.equal(
+    bundled[0].name,
+    "todolist",
+    "directory name comes from frontmatter",
+  );
   assert.ok(
-    bundled[0].path.endsWith("todos/SKILL.md"),
+    bundled[0].path.endsWith("todolist/SKILL.md"),
     "directory layout must resolve <id>/SKILL.md",
   );
 
-  assert.deepEqual(readSkills(emptyDir), [], "empty directory yields no skills");
+  assert.deepEqual(
+    readSkills(emptyDir),
+    [],
+    "empty directory yields no skills",
+  );
   assert.deepEqual(
     readSkills(join(sandbox, "does-not-exist")),
     [],
@@ -152,25 +166,30 @@ try {
   );
 
   const shipped = readSkills();
-  const todos = shipped.find((skill) => skill.id === "todos");
-  assert.ok(todos, "the plugin must ship a 'todos' skill");
-  assert.equal(todos.name, "todolist", "the shipped skill keeps its name");
+  const todolist = shipped.find((skill) => skill.id === "todolist");
+  assert.ok(todolist, "the plugin must ship a 'todolist' skill");
+  assert.equal(todolist.name, "todolist", "the shipped skill keeps its name");
   assert.ok(
-    todos.content.includes("manage_todo_list"),
+    todolist.content.includes("manage_todo_list"),
     "the shipped todolist skill must document manage_todo_list",
   );
   assert.ok(
-    !todos.content.startsWith("---"),
+    !todolist.content.startsWith("---"),
     "a registered skill body must not include the frontmatter block",
   );
 
-  console.log("✔ bundled skills/: the 'todos' skill is present and parsed");
+  console.log("✔ bundled skills/: the 'todolist' skill is present and parsed");
 
   // -------------------------------------------------------------------------
   // registerTodoSkills — hands skills to the plugin API
   // -------------------------------------------------------------------------
 
-  const added: Array<{ id: string; name: string; autoinvoke?: boolean; content: string }> = [];
+  const added: Array<{
+    id: string;
+    name: string;
+    autoinvoke?: boolean;
+    content: string;
+  }> = [];
   const ctx = {
     skill: {
       transform: async (callback: (editor: unknown) => void) => {
@@ -182,15 +201,25 @@ try {
   await registerTodoSkills(ctx as never);
 
   assert.equal(added.length, 1, "exactly one skill must be registered");
-  assert.equal(added[0].id, "todos", "the registered skill id is 'todos'");
-  assert.equal(added[0].name, "todolist", "the registered skill name is 'todolist'");
+  assert.equal(
+    added[0].id,
+    "todolist",
+    "the registered skill id is 'todolist'",
+  );
+  assert.equal(
+    added[0].name,
+    "todolist",
+    "the registered skill name is 'todolist'",
+  );
   assert.equal(added[0].autoinvoke, true, "the skill must be auto-invokable");
   assert.ok(
     added[0].content.includes("manage_todo_list"),
     "registered content must reach the model",
   );
 
-  console.log("✔ registerTodoSkills: forwards the parsed skill to ctx.skill.add");
+  console.log(
+    "✔ registerTodoSkills: forwards the parsed skill to ctx.skill.add",
+  );
 
   // The transform must be invoked exactly once per registration pass.
   let transformCalls = 0;
@@ -198,7 +227,7 @@ try {
     skill: {
       transform: async (callback: (editor: unknown) => void) => {
         transformCalls += 1;
-        callback({ add: () => {} });
+        callback({ add: () => { } });
       },
     },
   } as never);

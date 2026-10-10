@@ -179,7 +179,7 @@ export async function registerTodoPromptHook(
   try {
     await ctx.session.hook("context", async (sessionContext) => {
       try {
-        const system = (sessionContext as { system?: unknown })?.system;
+        const system = sessionContext.system;
         if (!Array.isArray(system)) return;
         const hint = consumeTodoHint(sessionContext.sessionID);
         if (!hint) return;

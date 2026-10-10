@@ -18,8 +18,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/build.mjs",
-    "test": "tsx test/manage-todo.test.ts && node test/build-tui.test.mjs",
-    "typecheck": "tsc --noEmit",
+    "test": "tsx test/manage-todo.test.ts && tsx test/skill.test.ts && tsx test/image-fallback.test.ts && tsx test/tui-follow.test.ts && bun test/tui-scroll.test.tsx && node test/build-tui.test.mjs",    "typecheck": "tsc --noEmit",
     "check": "bun run typecheck && bun run test"
   },
   "keywords": [
