@@ -8,7 +8,7 @@ import {
   TodoItemSchema,
   validateAndNormalizeTodos,
   type TodoItem,
-} from "./todo.js";
+} from "./todo";
 
 export class InvalidTodoDataError extends Error {
   constructor(message: string) {

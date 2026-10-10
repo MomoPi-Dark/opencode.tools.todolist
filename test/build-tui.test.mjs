@@ -12,7 +12,7 @@ const buildConfig = JSON.parse(
   readFileSync(resolve(root, "tsconfig.build.json"), "utf8"),
 );
 assert.equal(buildConfig.compilerOptions.jsx, "preserve");
-assert.equal(buildConfig.compilerOptions.outDir, ".");
+assert.equal(buildConfig.compilerOptions.outDir, ".build");
 
 const packageManager = process.env.npm_execpath ?? "pnpm";
 const result = spawnSync(packageManager, ["run", "build"], {

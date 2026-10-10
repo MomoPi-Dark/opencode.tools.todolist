@@ -4,8 +4,11 @@
         "declaration": true,
         "sourceMap": true,
         "jsx": "preserve",
+        "noEmit": false,
+        "noCheck": true,
+        "allowImportingTsExtensions": false,
         "rootDir": "src",
-        "outDir": "."
+        "outDir": "dist"
     },
     "include": [
         "src/**/*.ts",

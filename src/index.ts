@@ -1,7 +1,8 @@
 import { Plugin } from "@opencode/plugin";
 import { z } from "zod";
-import { consumeTodoHint } from "./hint.js";
-import { readTodos, updateTodos } from "./store.js";
+import { consumeTodoHint } from "./hint";
+import { registerTodoSkills } from "./skill";
+import { readTodos, updateTodos } from "./store";
 import {
   type SubTodo,
   type TodoItem,
@@ -9,7 +10,7 @@ import {
   TodoItemSchema,
   calculateGlobalStats,
   renderTodoTree,
-} from "./todo.js";
+} from "./todo";
 
 const todoListStatusSchema = z.enum([
   "pending",
@@ -153,6 +154,7 @@ export async function registerTodoTools(ctx: Plugin.Context): Promise<void> {
     });
   });
 
+  await registerTodoSkills(ctx);
   await registerTodoPromptHook(ctx);
 }
 

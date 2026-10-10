@@ -14,20 +14,20 @@ import {
   getTodoDisplaySummary,
   type TodoDisplayItem,
   type TodoDisplaySummary,
-} from "./display.js";
-import { SvgIcon } from "./icons/convert.js";
+} from "./display";
+import { SvgIcon } from "./icons/convert";
 import {
   arrowDownSvgIcon,
   arrowRightSvgIcon,
   removeSvgIcon,
-} from "./icons/icons.js";
+} from "./icons/icons";
 import {
   getTodosDirectory,
   hashSessionID,
   readTodosSync,
   writeTodos,
-} from "./store.js";
-import type { TodoStatus } from "./todo.js";
+} from "./store";
+import type { TodoStatus } from "./todo";
 
 export {
   formatTodoProgress,
@@ -266,6 +266,7 @@ function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
                   <SvgIcon
                     source={arrowRightSvgIcon}
                     color={theme().text.muted}
+                    fallback="›"
                     width={2}
                     height={1}
                   />
@@ -273,6 +274,7 @@ function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
                   <SvgIcon
                     source={arrowDownSvgIcon}
                     color={theme().text.muted}
+                    fallback="⌄"
                     width={2}
                     height={1}
                   />
@@ -326,6 +328,7 @@ function TodoProgress(props: { context: Plugin.Context; sessionID: string }) {
                     : theme().text.muted
                 }
                 source={removeSvgIcon}
+                fallback="×"
                 height={1}
                 width={2}
               />
